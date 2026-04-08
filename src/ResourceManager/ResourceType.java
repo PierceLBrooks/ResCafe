@@ -1,0 +1,298 @@
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/ResourceManager/RCS/ResourceType.java,v 1.3 1999/10/21 23:52:11 gbsmith Exp $ */
+
+package ResourceManager;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.RandomAccessFile;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+/*=======================================================================*/
+/*
+ * $Log: ResourceType.java,v $
+ * Revision 1.3  1999/10/21 23:52:11  gbsmith
+ * Added Copyright notice.
+ *
+ * Revision 1.2  1999/10/13 07:43:18  gbsmith
+ * Added support for non-zero file seeks which are necessary to support
+ * reading a full MacBinary file.
+ *
+ * Revision 1.1  1999/10/04 20:16:19  gbsmith
+ * Initial revision
+ *
+ */
+
+/*=======================================================================*/
+/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
+/*=======================================================================*/
+
+/*=======================================================================*/
+/**
+ * ResourceType: ResourceType reads and holds all the Resources of a
+ * single type (e.g. 'ICON', 'MENU'). It allows both individual Hashtable
+ * access and en masse Array access to the Resources.
+ * Public accessor methods are provided to access additional Type data
+ * such as the ID of the type and the number of Resources
+ * @author Copyright (c) 1999 by George B. Smith
+ */
+
+public class ResourceType
+{
+   /*--- Data -----------------------------------------------------------*/
+   String id; // 4 char string
+   short numItems;
+   short offset;
+
+   Resource resArray[]; // Resources of this Type
+   Hashtable resHash;   // Keep array for backward compat
+
+   /*--- RCS ------------------------------------------------------------*/
+   static final String rcsid = "$Id: ResourceType.java,v 1.3 1999/10/21 23:52:11 gbsmith Exp $";
+
+   /*--- Methods --------------------------------------------------------*/
+   void readType(RandomAccessFile inraf) throws IOException
+   {
+      byte tmpbytes[] = new byte[4];
+
+      inraf.read(tmpbytes); // Read in 4 bytes
+      id = new String( tmpbytes );
+      numItems  = inraf.readShort();
+      numItems++;
+      offset    = inraf.readShort();
+
+      resHash  = new Hashtable(numItems);
+      resArray = new Resource[numItems]; // Keep array for backward compat
+   }
+
+   /*----------------------------------------------------------------------*/
+   void readResources(RandomAccessFile inraf, ResourceHeader rhdr,
+                      ResourceMap rmap) throws IOException
+   {
+      // Rather than have almost duplicate code...
+      readResources(inraf, rhdr, rmap, 0);
+   }
+
+   /*----------------------------------------------------------------------*/
+   void readResources(RandomAccessFile inraf, ResourceHeader rhdr,
+                      ResourceMap rmap, long seekSet) throws IOException
+   {
+      Resource currentRes;
+      Enumeration resEnum;
+
+      inraf.seek(seekSet + rhdr.mapOffset + rmap.typeOffset + offset);
+      for(int i = 0; i < numItems; i++)
+      {
+         currentRes = new Resource();
+         currentRes.readInfo(inraf);
+         resHash.put(new Short(currentRes.id), currentRes);
+         resArray[i] = currentRes; // Keep array for backward compat
+      }
+
+      resEnum = resHash.keys();
+      while(resEnum.hasMoreElements())
+      {
+         currentRes = (Resource)resHash.get(resEnum.nextElement());
+         // Use existing 'offset' param to carry seekSet displacement
+         currentRes.readName(inraf, seekSet + rhdr.mapOffset +
+                             rmap.nameOffset);
+         currentRes.readData(inraf, seekSet + rhdr.dataOffset);
+      }
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Dumps the ResourceType information (not including data) to a Stream
+    * @param ps the PrintStream to print the info
+    */
+   public void print(PrintStream ps)
+   {
+      ps.println("Resource Type");
+      ps.println("\tid       = " + id );
+      ps.println("\tnumItems = " + numItems );
+      ps.println("\toffset   = " + offset );
+      ps.println("--------------------------------------------------");
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Dumps the ResourceType information (not including data) to a Stream
+    * as well as the info of all the Resources it holds
+    * @param ps the PrintStream to print the info
+    */
+   public void printAll(PrintStream ps)
+   {
+      ps.println("Resource Type");
+      ps.println("\tid       = " + id );
+      ps.println("\tnumItems = " + numItems );
+      ps.println("\toffset   = " + offset );
+      ps.println("--------------------------------------------------");
+
+      for(int i = 0; i < resArray.length; i++)
+      {
+         ps.print("" + i + ") ");
+         resArray[i].print(ps);
+      }
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Returns the number of Items of this ResourceType
+    */
+   public short size()       { return numItems; }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Returns the Type Code of this ResourceType, e.g. 'icl8', 'BNDL'
+    */
+   public String getID()            { return id;       }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Returns all the Resources of this ResourceType in a standard Array.
+    * Some clients may find Array access (0, 1, 2, etc.) more useful for
+    * some applications than Hash access based on the Resource ID
+    */
+   public Resource[] getResArray() { return resArray;   }
+
+   /*----------------------------------------------------------------------*/
+   // Access via HASHES
+   // public Hashtable getResHash() { return resHash;   }
+   // Hmmm... Can just access hash-like with below methods...
+
+   /*----------------------------------------------------------------------*/
+   // Access Individually
+   /**
+    * Returns the single Resource keyed to the given ID. This is Hashtable
+    * style access and is easier for some applications, when trying to
+    * access a particular Resource.
+    * @param idtoget the ID Key of the desired Resource
+    */
+   public Resource getResource(Short idtoget)
+   {
+      return (Resource)resHash.get(idtoget);
+      //return null;
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * A convenience method allowing access with a primitive short key in
+    * addition to the Short Object method
+    * @param idtoget the ID Key of the desired Resource
+    */
+   public Resource getResource(short idtoget)
+   {
+      return  getResource(new Short(idtoget));
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Test whether a Resource of the given ID exists or not
+    * @param idtocheck the Resource ID in question
+    */
+   public boolean contains(Short idtocheck)
+   {
+      return resHash.containsKey(idtocheck);
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * A convenience method allowing a test with a primitive short key in
+    * addition to the Short Object method
+    * @param idtocheck  the Resource ID in question
+    */
+   public boolean contains(short idtocheck)
+   {
+      return contains(new Short(idtocheck));
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Returns an Enumeration of all the ID keys of the type to enable
+    * iterative Hashtable access to all the Resources of this type
+    */
+   public Enumeration getResourceIDs()
+   {
+      return resHash.keys();
+   }
+}
+
+
+/*=========================================================================*/
+class ResourceHeader
+{
+   long dataOffset;
+   long mapOffset;
+   long dataLength;
+   long mapLength;
+
+   /*----------------------------------------------------------------------*/
+   void read(RandomAccessFile inraf) throws IOException
+   {
+      dataOffset = ResourceIntegers.readResLong(inraf);
+      mapOffset  = ResourceIntegers.readResLong(inraf);
+      dataLength = ResourceIntegers.readResLong(inraf);
+      mapLength  = ResourceIntegers.readResLong(inraf);
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Dumps the ResourceHeader information (not including data) to a Stream
+    * @param ps the PrintStream to print the info
+    */
+   public void print(PrintStream ps)
+   {
+      ps.println("Resource Header");
+      ps.println("\tdataOffset = " + dataOffset );
+      ps.println("\tmapOffset  = " + mapOffset  );
+      ps.println("\tdataLength = " + dataLength );
+      ps.println("\tmapLength  = " + mapLength  );
+      ps.println("--------------------------------------------------");
+   }
+}
+
+
+/*=========================================================================*/
+class ResourceMap
+{
+   short resAttr;
+   short typeOffset;
+   short nameOffset;
+   short numTypes;
+
+   /*----------------------------------------------------------------------*/
+   void read(RandomAccessFile inraf) throws IOException
+   {
+      resAttr    = inraf.readShort();
+      typeOffset = inraf.readShort();
+      nameOffset = inraf.readShort();
+      numTypes   = inraf.readShort();
+      numTypes++;
+   }
+
+   /*----------------------------------------------------------------------*/
+   void read(RandomAccessFile inraf, long offset ) throws IOException
+   {
+      inraf.seek(offset);
+      resAttr    = inraf.readShort();
+      typeOffset = inraf.readShort();
+      nameOffset = inraf.readShort();
+      numTypes   = inraf.readShort();
+      numTypes++;
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Dumps the ResourceMap information (not including data) to a Stream
+    * @param ps the PrintStream to print the info
+    */
+   public void print(PrintStream ps)
+   {
+      ps.println("Resource Map");
+      ps.println("\tresAttr    = " + resAttr    );
+      ps.println("\ttypeOffset = " + typeOffset );
+      ps.println("\tnameOffset = " + nameOffset );
+      ps.println("\tnumTypes   = " + numTypes   );
+      ps.println("--------------------------------------------------");
+   }
+}

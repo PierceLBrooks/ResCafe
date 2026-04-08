@@ -1,0 +1,79 @@
+# $Header$ 
+#
+
+# $Log$
+#
+
+#----------------------------------------------------------------------------
+.SUFFIXES: .class .java .jar
+
+
+JAVAC = javac
+
+APPCLASSES=ResourceManager Colors Jarload Handlers \
+	FilePicker.class JFilePicker.class \
+        MacBinaryHeader.class FileController.class \
+	MacResTypeListModel.class jMainResourceView.class \
+	ResCafe.class
+
+PLUGINS=MacResourceHandler.class \
+	CURSResourceHandler.class \
+	SICNResourceHandler.class \
+	STR_ResourceHandler.class \
+	ICN_maskResourceHandler.class \
+	acurResourceHandler.class \
+	ICONResourceHandler.class \
+	clutResourceHandler.class \
+	icl4ResourceHandler.class \
+	icl8ResourceHandler.class \
+	ics4ResourceHandler.class \
+	ics8ResourceHandler.class \
+	ics_maskResourceHandler.class
+
+DO_JAR_COMPILE := $(shell if [ -f MultiClassLoader.java -a \
+                               -f JarClassLoader.java -a \
+                               -f JarResources.java ]; \
+                          then echo "y" ; fi)
+
+VPATH=ResourceManager:.
+CLASSDIR=.
+
+#----------------------------------------------------------------------------
+all: appjar
+
+appjar: ResCafe.jar
+
+ResCafe.jar: app
+	jar -c0f ResCafe.jar *.class ResourceManager/*.class
+
+app: ${APPCLASSES}
+
+.PHONY : ResourceManager
+ResourceManager :
+	$(MAKE) all -C ResourceManager
+
+
+Colors: MacStandard16Palette.class MacStandard256Palette.class
+
+Dialogs: MessageDialog.class 
+
+#????????????????????????????????????????????????????????????????????????????
+# Tried to "detect" and make or not make Jar support
+# BUT this fouls up HandlerTable compile...
+ifeq ("$(DO_JAR_COMPILE)", "y")
+Jarload: JarResources.class MultiClassLoader.class JarClassLoader.class
+else
+Jarload:
+endif
+#????????????????????????????????????????????????????????????????????????????
+
+Handlers: MacResourceHandler.class HandlerTable.class DefaultResourceHandler.class
+
+plugins: ${PLUGINS}
+
+.java.class:
+	${JAVAC} -classpath .:/opt/java/classes/JimiProClasses.zip:${CLASSPATH} -d ${CLASSDIR}  $<
+
+clean:  
+	rm -f *.class
+	$(MAKE) clean -C ResourceManager

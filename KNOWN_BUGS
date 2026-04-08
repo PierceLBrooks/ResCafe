@@ -1,0 +1,14 @@
+KNOWN_BUGS in ResCafe v0.2
+13 Oct 1999
+
+* ICN# - my simple 'ICN#' handler is having major problems saving the mask
+  images to file. 'ics#' does NOT have this problem. Of course, it would
+  probably be better to use the mask to make an alpha channel in the first
+  place and save one image, but another plugin can always be made to do
+  this later.
+
+* IconFamilyResourceHandler - Masks are not actually applied to their
+  Icons to make transparent alpha areas, which seems more desirable.
+
+* The loading, when icons are used and several plugins are present,
+  is slow. Threads might improve this - or at least the perception of it.
