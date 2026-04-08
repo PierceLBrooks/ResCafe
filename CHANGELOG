@@ -1,6 +1,14 @@
 ResCafe Change Log
 ==================
 
+1.2.5 -> 1.3
+---------------
+Made some minor code modifications to solve problems I was having with
+Java 1.3. Added an opening splash screen with notifications about the
+loading procedure. Added the beginnings of an 'icns' plugin. Unfortunately
+this does not parse the 32-bit components which really are the most 
+important part of 'icns' )-;.
+
 1.2 -> 1.2.5
 ---------------
 Completely replaced Jimi with XpmImage for all code including plugins.

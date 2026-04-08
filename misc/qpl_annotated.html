@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- $Id: index.html,v 1.51 1999/09/03 09:52:56 aavit Exp $ -->
+<!-- all HTML comments are removed when publishing the pages -->
+<!-- there must be empty lines around each preserved section -->
+<html><head><title>
+
+The License for the Qt Free Edition
+
+</title><style type="text/css"><!--
+H1, H2, H3, H4 {font-family: Univers, Helvetica, "Lucida Sans", Arial, Geneva, sans-serif;}
+BODY {font-family: "Times New Roman", Georgia, Times, "New York", serif; background: white; color: black;}
+TT, PRE, CODE {font-family: "Courier New", "Courier", fixed; background: white; color: black;}
+--></style></head><body bgcolor="#ffffff" text="#000000" link="#0000ff" vlink="#800080" onload="if(top.frames.length!=0)top.location=self.location;">
+<div align="right">
+<table border="0" cellspacing="0" cellpadding="0" align="left">
+<tr valign="top"><td halign="left">
+<a href="/"><img width="168" height="98" src="/image/ttlogo-small.jpg" alt="Home" align="left" border="0"></a></table>
+<a href="/products/"><img width="98" height="22" src="/image/btn-products.gif" alt="Products" border="0"></a>
+<a href="/purchase/"><img width="98" height="22" src="/image/btn-purchase.gif" alt="Purchase" border="0"></a>
+<a href="/dl/"><img width="98" height="22" src="/image/btn-download.gif" alt="Download" border="0"></a>
+<a href="/developer/"><img width="98" height="22" src="/image/btn-developer.gif" alt="Developer" border="0"></a>
+<a href="/site-map.html"><img width="98" height="22" src="/image/btn-sitemap.gif" alt="Site Map" border="0"></a>
+<a href="/search.html"><img width="98" height="22" src="/image/btn-search.gif" alt="Search" border="0"></a>
+</div><br clear="all"><h1 align="center">
+
+</h1><!-- leave empty line above and below -->
+
+<p><font color=green>
+This is not a legal document. For the exact interpretation of the license
+you must read it and understand it. This page is simply meant to explain
+the license in an easy to understand and informal way.
+</font>
+
+<h1 align=center>
+<p><font color=green>
+THE ANNOTATED Q PUBLIC LICENSE VERSION 1.0
+<br>
+AS APPLIED TO The Qt Free Edition VERSION 2.0
+</font>
+<!-- header: -->
+<br>
+<br>
+<small>
+
+		   Copyright (C) 1999 Troll Tech AS, Norway.
+<br>
+<small>
+		       Everyone is permitted to copy and
+<br>
+		       distribute this license document.
+</small>
+</small>
+</h1>
+
+<p>
+The intent of this license is to establish freedom to share and change the
+software regulated by this license under the open source model.
+
+<p>
+This license applies to any software containing a notice placed by the
+copyright holder saying that it may be distributed under the terms of
+the Q Public License version 1.0.  Such software is herein referred to as
+the Software.  This license covers modification and distribution of the
+Software, use of third-party application programs based on the Software,
+and development of free software which uses the Software.
+
+
+<h2 align=center>
+				 Granted Rights
+</h2>
+
+<p>
+1. You are granted the non-exclusive rights set forth in this license
+   provided you agree to and comply with any and all conditions in this
+   license.  Whole or partial distribution of the Software, or software
+   items that link with the Software, in any form signifies acceptance of
+   this license.
+
+<p><font color=green>
+This is to ensure that everyone follows the rules. If you do not accept
+this license you are not given the right to distribute the software, to
+make modifications to it nor develop anything with it.
+</font>
+<p>
+2. You may copy and distribute the Software in unmodified form provided
+   that the entire package, including - but not restricted to - copyright,
+   trademark notices and disclaimers, as released by the initial developer
+   of the Software, is distributed.
+
+<p><font color=green>
+Distribute the software, i.e. Qt, to anyone you like,
+as long as you include everything in the original distribution.
+
+In order to preserve the integrity of the unmodified version,
+modifications are restricted to being separated in some way from the
+original Qt source code.
+</font>
+
+<p>
+
+3. You may make modifications to the Software and distribute your
+   modifications, in a form that is separate from the Software, such as
+   patches. The following restrictions apply to modifications:
+
+<p><font color=green>
+You can make and distribute changes, the preferred form being patches.
+<p>
+You cannot just change the code and redistribute it, as this would
+not be separate - people would not know what part of the software
+is Qt and what part is the changes you made.
+<p>
+The easiest way to deal with this is to use a version management system
+such as CVS - you will find that it is in fact much easier to distribute
+patches than to try to deal with entire files.  With patches, you can
+easily incorporate changes made by others into your copy of Qt.
+<p>
+You may also distribute a modified binary version if you include
+the patch (see 4).
+<p>
+Patches should include an accurate description of the modification, the
+date of the modification, and the author of the modification.
+<p>
+A typical patch is shown below.
+
+<pre>
+    Copyright (C) 1998 Harald Acker <hacker@u-o-life.edu>
+
+    This patch may be distributed under the terms of the Q
+    Public License, version 1.0 or later.
+
+    This patch is for Qt 2.42.  It fixes the bug where Foo
+    objects move right when they should move left.
+
+    -=- qfoo.cpp	1998/09/15 10:44:25	2.18.2.3
+    +++ qfoo.cpp	1998/11/20 12:28:12
+    @@ -157,2 +157,2 @@
+       // Move to the left
+    +  x += 1;
+    -  x -= 1;
+</pre>
+
+<p>
+Any technique is acceptable for keeping changes separate - generally,
+you would have to mark changes very clearly for them to be separate.
+We don't want to hard-code the idea that the form <em>must</em>
+be patches.
+</font>
+
+<blockquote>
+<p>
+     a. Modifications must not alter or remove any copyright notices in
+        the Software.
+<p><font color=green>
+This doesn't really need to be stated, since to do so would be fraudulent.
+</font>
+
+<p>
+     b. When modifications to the Software are released under this
+        license, a non-exclusive royalty-free right is granted to the
+        initial developer of the Software to distribute your modification
+        in future versions of the Software provided such versions remain
+        available under these terms in addition to any other license(s) of
+        the initial developer.
+
+<p><font color=green>
+You may license your patch any way you see fit, but note that
+when distributed in a binary form of Qt, it must be licensed
+under the QPL - this is explained in section 4.
+<p>
+This clause makes it possible for Troll Tech to include patches in new
+versions of Qt.  It also means that the same patches can be included in
+the Qt Professional Edition, but Troll Tech are in turn required to ensure
+that those changes are in both versions.
+</font>
+</blockquote>
+
+<p>
+4. You may distribute machine-executable forms of the Software or
+   machine-executable forms of modified versions of the Software, provided
+   that you meet these restrictions:
+<p><font color=green>
+You may distribute binaries.
+</font>
+<blockquote>
+<p>
+
+     a. You must include this license document in the distribution.
+<p><font color=green>
+You must tell the recipients about their rights.
+</font>
+
+<p>
+     b. You must ensure that all recipients of the machine-executable forms
+        are also able to receive the complete machine-readable source code
+        to the distributed Software, including all modifications, without
+        any charge beyond the costs of data transfer, and place prominent
+        notices in the distribution explaining this.
+
+<p><font color=green>
+The easiest way to achieve this is to have the source code accompany
+the binary version.  For FTP distribution, it should be just as accessible.
+For CD-ROM distribution, it should be on an accompanying CD.  The
+basic rule here is "binary follows source".
+</font>
+<p>
+     c. You must ensure that all modifications included in the
+        machine-executable forms are available under the terms of this
+        license.
+
+<p><font color=green>
+Most patches contain quoted Qt code, plus work of your own.  You may
+license your patch any way you see fit, but when distributed in a
+binary form of Qt, it must be licensed under the QPL. Be careful if
+taking code from other sources to include in Qt - that other software
+may not allow such copying.
+<p>
+<em>Why?</em>  Without this restriction, nothing would prevent modified
+versions of Qt, licensed under non-free licensing.
+</font>
+</blockquote>
+
+<p>
+5. You may use the original or modified versions of the Software to
+   compile, link and run application programs legally developed by you
+   or by others.
+
+<p><font color=green>
+If you have a program written for the software, go ahead and use it.
+This allows you to use software created under either the Qt Free Edition
+license or the Qt Professional Edition license with the one library version.
+</font>
+
+<p>
+6. You may develop application programs, reusable components and other
+   software items that link with the original or modified versions of the
+   Software.  These items, when distributed, are subject to the following
+   requirements:
+
+<p><font color=green>
+This is a license designed for libraries, therefore we must also talk
+about application programs or other libraries (components) that are linked
+with the software, as these include portions of Qt when in binary form.
+Of course, given the term "link", there is no
+differentiation between static and dynamic linking.
+<p>
+In essence this clause says that you may develop programs that link with
+Qt provided that you develop Open Source software.
+</font>
+
+<blockquote>
+<p>
+     a. You must ensure that all recipients of machine-executable forms of
+        these items are also able to receive and use the complete
+        machine-readable source code to the items without any charge
+        beyond the costs of data transfer.
+
+<p><font color=green>
+Like 4b., "source follows binary".  You are free to charge for binaries,
+however you must also supply the source code.  Note that "all recipients"
+includes recipients that you do not directly transfer copies to.  The easiest
+way to achieve this is to allow (or insist) that all recipients can further
+distribute the source.
+</font>
+
+<p>
+     b. You must explicitly license all recipients of your items to use
+        and re-distribute original and modified versions of the items in
+        both machine-executable and source code forms. The recipients must
+        be able to do so without any charges whatsoever, and they must be
+        able to re-distribute to anyone they choose.
+
+<p><font color=green>
+This ensures that all recipients have the same rights, no matter how or
+from whom they received the software.  The easiest way to provide this
+explicit license is to allow recipients to grant the same license to
+others.
+<p>
+If the recipients of your software wishes to do so they may re-distribute
+your software without anyone having to pay money either to them or to you.
+</font>
+
+<p>
+     c. If the items are not available to the general public, and the
+        initial developer of the Software requests a copy of the items,
+        then you must supply one.
+
+<p><font color=green>
+This is to avoid problems with companies that try to hide the source. If
+we get to know about it we want to be able to get hold of the code even if
+we are not users. In this way, if somebody tries to cheat and we get to
+know we can release the code to the public.
+</font>
+
+</blockquote>
+
+<h2 align=center>
+			    Limitations of Liability
+</h2>
+
+In no event shall the initial developers or copyright holders be liable
+for any damages whatsoever, including - but not restricted to - lost
+revenue or profits or other direct, indirect, special, incidental or
+consequential damages, even if they have been advised of the possibility
+of such damages, except to the extent invariable law, if any, provides
+otherwise.
+<p><font color=green>
+</font>
+
+<h2 align=center>
+			          No Warranty
+</h2>
+
+<p>
+The Software and this license document are provided AS IS with NO WARRANTY
+OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE.
+<p><font color=green>
+</font>
+<h2 align=center>
+                                 Choice of Law
+</h2>
+
+<p>
+This license is governed by the Laws of Norway. Disputes shall be settled
+by Oslo City Court.
+<!-- endplain -->
+
+<address><p><hr><div align="center">
+<table width="100%" cellspacing="0" border="0"><tr>
+<td>Copyright © 1999 Troll Tech<td><a href="/trademarks.html">Trademarks</a>
+<td align="right"><div align="right"> <!-- qtmozilla bug -->
+Questions? <a href="/troll.html">Contact us!</a></div>
+</table></div></address></body></html>

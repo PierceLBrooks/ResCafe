@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $ */
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,6 +22,9 @@ import java.util.zip.ZipFile;
 /*=======================================================================*/
 /*
  * $Log: HandlerTable.java,v $
+ * Revision 1.10  2000/11/27 19:53:17  gbsmith
+ * Reworked verbose output formatting to work with new splash screen observer.
+ *
  * Revision 1.9  2000/05/24 06:50:29  gbsmith
  * Made observable so it can notify Windows and stuff when it has
  * been updated, such as with a rescan.
@@ -66,7 +69,7 @@ class HandlerTable extends Observable implements Runnable
    private boolean VERBOSE = true; //private boolean VERBOSE = false;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public HandlerTable()
@@ -185,6 +188,7 @@ class HandlerTable extends Observable implements Runnable
       String strippedClass;
       Class currentClass;
       String supportedTypes[];
+      StringBuffer foundStr;
 
       SubdirClassLoader sdcl = new SubdirClassLoader(searchdir);
 
@@ -209,22 +213,18 @@ class HandlerTable extends Observable implements Runnable
          {
             String searchname = searchdir.getName();
             currentClass = sdcl.loadClass(strippedClass);
-            if(VERBOSE) System.out.print("\t" + currentClass + ": ");
-
+            
+            foundStr = new StringBuffer("" + currentClass);
             if(checkSuperclass(currentClass))
             {
                // Class is what we want...
                MacResourceHandler mrh =
                   (MacResourceHandler)currentClass.newInstance();
                supportedTypes =  mrh.getTypes();
+               foundStr.append(":");
                for(int k = 0; k < supportedTypes.length; k++)
                {
-                  // Report
-                  if(VERBOSE)
-                  {
-                     System.out.print("  " + supportedTypes[k] );
-                     System.out.flush( );
-                  }
+                  foundStr.append("  " + supportedTypes[k]);
 
                   // Allow special 'default' signature to replace built-in
                   if(supportedTypes[k].compareTo("default") == 0)
@@ -244,12 +244,22 @@ class HandlerTable extends Observable implements Runnable
                // PROBLEM: This also records invalid types...
 
             }
+            
+            setChanged();
+            notifyObservers(foundStr.toString());
+
+            // Report
+            if(VERBOSE)
+            {
+               System.out.print("\t" + foundStr);
+               System.out.flush( );
+            }
+
          } catch(Exception whatever) {
             // System.err.println(whatever);
          }
          if(VERBOSE) System.out.println("");
       }
-
       if(VERBOSE) System.out.println("");
 
       //--------------------------------------------------------------------
@@ -416,7 +426,7 @@ class HandlerTable extends Observable implements Runnable
 class ClassFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -432,7 +442,7 @@ class ClassFileFilter implements FilenameFilter
 class DirFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -447,7 +457,7 @@ class DirFilter implements FilenameFilter
 class JarFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -470,7 +480,7 @@ class SubdirClassLoader extends ClassLoader
    File searchdir;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public SubdirClassLoader( File indir )

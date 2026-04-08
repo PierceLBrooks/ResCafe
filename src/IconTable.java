@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/IconTable.java,v 1.2 2000/05/25 05:55:31 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/IconTable.java,v 1.2 2000/05/25 05:55:31 gbsmith Exp $ */
 
 import javax.swing.ImageIcon;
 

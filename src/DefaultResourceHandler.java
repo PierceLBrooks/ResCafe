@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/DefaultResourceHandler.java,v 1.4 2000/05/24 06:13:45 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/DefaultResourceHandler.java,v 1.6 2000/11/27 19:57:24 gbsmith Exp $ */
 
 import javax.swing.*;
 
@@ -27,6 +27,13 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: DefaultResourceHandler.java,v $
+ * Revision 1.6  2000/11/27 19:57:24  gbsmith
+ * Added ident tag to SortDecorator
+ *
+ * Revision 1.5  2000/11/25 07:02:39  gbsmith
+ * Added some null tests in columnHeaderWidth() which was crashing
+ * under Java 1.3.
+ *
  * Revision 1.4  2000/05/24 06:13:45  gbsmith
  * Moved column width optimization and column sorting functionality
  * in from IconFamily so it can be exploited by all subclass (and
@@ -56,7 +63,7 @@ public class DefaultResourceHandler extends MacResourceHandler
    protected static final String[] columnNames = { "ResID", "Name", "Size"};
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: DefaultResourceHandler.java,v 1.4 2000/05/24 06:13:45 gbsmith Exp $";
+   static final String rcsid = "$Id: DefaultResourceHandler.java,v 1.6 2000/11/27 19:57:24 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public String[] getTypes( )
@@ -162,9 +169,12 @@ public class DefaultResourceHandler extends MacResourceHandler
    protected int columnHeaderWidth(TableColumn inCol)
    {
       TableCellRenderer renderer = inCol.getHeaderRenderer();
+      if(renderer == null) return 0; // no renderer? can't ask it anything
 
       Component comp = renderer.getTableCellRendererComponent(
          resTable, inCol.getHeaderValue(), false, false, 0, 0);
+      if(comp == null) return 0; // no comp -> no size
+
       return comp.getPreferredSize().width;
    }
 
@@ -195,6 +205,9 @@ class SortDecorator implements TableModel, TableModelListener
 {
    private TableModel trueModel;
    private int indices[];
+
+   /*------ RCS ---------------------------------------------------------*/
+   static final String rcsid = "$Id: DefaultResourceHandler.java,v 1.6 2000/11/27 19:57:24 gbsmith Exp $";
 
    /*--------------------------------------------------------------------*/
    public SortDecorator(TableModel model) 

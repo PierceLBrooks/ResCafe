@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/XpmImage.java,v 1.4 2000/05/25 06:17:15 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/XpmImage.java,v 1.4 2000/05/25 06:17:15 gbsmith Exp $ */
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

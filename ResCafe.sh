@@ -12,7 +12,8 @@
 #
 #----------------------------------------------------------------------------
 
-RESCAFEHOME=/opt/java/classes/ResCafe
+#RESCAFEHOME=/opt/java/classes/ResCafe
+RESCAFEHOME=.
 
 # Get data file abs paths
 n=0
@@ -31,9 +32,12 @@ do
 done
 
 
-CLASSPATH=${RESCAFEHOME}/ResCafe.jar:${RESCAFEHOME}/plugins:${CLASSPATH}
+#CLASSPATH=${RESCAFEHOME}/ResCafe.jar:${RESCAFEHOME}/plugins:${CLASSPATH}
 #CLASSPATH=ResCafe.jar:plugins:${CLASSPATH}
 cd $RESCAFEHOME
 
 
-java ResCafe ${resfile[*]} &
+java -cp ${RESCAFEHOME}/ResCafe.jar:${RESCAFEHOME}/plugins \
+     ResCafe \
+     ${resfile[*]} \
+     2>/dev/null  &

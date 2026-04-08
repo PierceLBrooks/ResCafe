@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/ResourceManager/RCS/ResourceType.java,v 1.3 1999/10/21 23:52:11 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/ResourceManager/RCS/ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $ */
 
 package ResourceManager;
 
@@ -11,6 +11,9 @@ import java.util.Hashtable;
 /*=======================================================================*/
 /*
  * $Log: ResourceType.java,v $
+ * Revision 1.4  2000/11/27 20:05:34  gbsmith
+ * Added ident tags for ResourceHeader and ResourceMap classes.
+ *
  * Revision 1.3  1999/10/21 23:52:11  gbsmith
  * Added Copyright notice.
  *
@@ -48,7 +51,7 @@ public class ResourceType
    Hashtable resHash;   // Keep array for backward compat
 
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: ResourceType.java,v 1.3 1999/10/21 23:52:11 gbsmith Exp $";
+   static final String rcsid = "$Id: ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    void readType(RandomAccessFile inraf) throws IOException
@@ -226,6 +229,9 @@ class ResourceHeader
    long dataLength;
    long mapLength;
 
+   /*--- RCS ------------------------------------------------------------*/
+   static final String rcsid = "$Id: ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $";
+
    /*----------------------------------------------------------------------*/
    void read(RandomAccessFile inraf) throws IOException
    {
@@ -259,6 +265,9 @@ class ResourceMap
    short typeOffset;
    short nameOffset;
    short numTypes;
+
+   /*--- RCS ------------------------------------------------------------*/
+   static final String rcsid = "$Id: ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $";
 
    /*----------------------------------------------------------------------*/
    void read(RandomAccessFile inraf) throws IOException

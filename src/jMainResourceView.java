@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $ */
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -47,6 +47,11 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: jMainResourceView.java,v $
+ * Revision 1.15  2000/11/27 19:50:05  gbsmith
+ * Split constructor into short constructor and assemble() method. Eliminated
+ * some commented code. Used Unicode \u00e9 for e-aigu. Incremented version
+ * to 1.3.
+ *
  * Revision 1.14  2000/05/25 06:48:56  gbsmith
  * Removed references to Jimi. Moved menu instantiation code
  * from constructor to its own method - buildMenus().
@@ -155,12 +160,17 @@ public class jMainResourceView extends JFrame implements Observer
 
    /*------ RCS -----------------------------------------------------------*/
    static final String rcsid =
-   "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
+   "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
 
    /*--- Methods ----------------------------------------------------------*/
-   public jMainResourceView(String frameTitle)
+   public jMainResourceView(String frameTitle) // constructor
    {
       super(frameTitle);
+   }
+   
+   /*----------------------------------------------------------------------*/
+   public void assemble()
+   {
       Container contentPane = getContentPane();
 
       /* Load type icons with a thread ------------------------------------*/
@@ -184,9 +194,6 @@ public class jMainResourceView extends JFrame implements Observer
 
       typeLabPanel = new JPanel();
       typeLabPanel.setBorder(BorderFactory.createRaisedBevelBorder());
-      //typeLabPanel.setBorder(BorderFactory.createEtchedBorder(
-      //   getBackground().brighter(), getBackground().darker()));
-
       typePanel.add(typeLabPanel, "North");
 
       typeLab = new JLabel("Resource Types");
@@ -201,9 +208,6 @@ public class jMainResourceView extends JFrame implements Observer
 
       handlerLabPanel = new JPanel();
       handlerLabPanel.setBorder(BorderFactory.createRaisedBevelBorder());
-      //handlerLabPanel.setBorder(BorderFactory.createEtchedBorder(
-      //   getBackground().brighter(), getBackground().darker()));
-
       handlerPanel.add(handlerLabPanel, "North");
 
       handlerLab = new JLabel("Resources");
@@ -237,7 +241,7 @@ public class jMainResourceView extends JFrame implements Observer
       mbar = new JMenuBar();
 
       /*-----------*/
-      /*   File    */
+      /*    File   */
       /*-------------------------------------------------------------------*/
       fileMenu = new JMenu("File", true);
       fileMenu.setMnemonic('F');
@@ -315,7 +319,7 @@ public class jMainResourceView extends JFrame implements Observer
       helpMenu = new JMenu("Help", true);
       helpMenu.setMnemonic('H');
       /*-------------------------------------------------------------------*/
-      helpMenu.add(aboutAppItem  = new JMenuItem("About ResCafé", 'R'));
+      helpMenu.add(aboutAppItem  = new JMenuItem("About ResCaf\u00e9", 'R'));
       aboutAppItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH,
                                                          Event.CTRL_MASK));
 
@@ -572,9 +576,9 @@ public class jMainResourceView extends JFrame implements Observer
    {
       JOptionPane jop = new JOptionPane();
       String message[] = {
-         "ResCafé v1.2",
+         "ResCaf\u00e9 v1.3",
          "by G. Brannon Smith <gbsmith@mail.com>",
-         "Wed, 24 May 2000",
+         "Wed, 27 Nov 2000",
          " ",
          "A Java app for viewing and extracting data",
          "from Mac Resource Forks on other platforms -",
@@ -584,7 +588,7 @@ public class jMainResourceView extends JFrame implements Observer
       jop.showMessageDialog(
          this,     // Parent
          message,  // "about message here",
-         "About ResCafé",
+         "About ResCaf\u00e9",
          JOptionPane.INFORMATION_MESSAGE
          );
    }
@@ -647,7 +651,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Local because it only affects aspects of the local display:
       // *** HOWEVER, perhaps quit portion should not be local
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent event)
@@ -691,7 +695,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // Local because it only affects what ResourceModel is VIEWED
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent ae)
@@ -708,7 +712,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Detects clicks in the Type List and displays resources of that type
 
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void valueChanged(ListSelectionEvent lse)
@@ -727,7 +731,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // *** Perhaps this shouldn't be local after all
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
       public void windowClosing(WindowEvent event) { doQuit(); }
    }
 }

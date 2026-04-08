@@ -18,7 +18,7 @@ all: ResourceManager
 ResourceManager : ResourceIntegers.class Resource.class ResourceType.class ResourceModel.class
 
 .java.class:
-	${JAVAC} -classpath .:..:${CLASSPATH}   $<
+	${JAVAC} -classpath .:..:/opt/jdk/jre/lib/rt.jar:${CLASSPATH}   $<
 
 clean:  
 	rm -f *.class

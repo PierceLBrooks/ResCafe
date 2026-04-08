@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/jHandlerView.java,v 1.2 2000/05/24 06:58:51 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/jHandlerView.java,v 1.3 2000/11/27 19:54:38 gbsmith Exp $ */
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
@@ -24,6 +24,10 @@ import java.util.Observer;
 /*=======================================================================*/
 /*
  * $Log: jHandlerView.java,v $
+ * Revision 1.3  2000/11/27 19:54:38  gbsmith
+ * Removing "Refreshing..." notification since update is being called much
+ * more often now.
+ *
  * Revision 1.2  2000/05/24 06:58:51  gbsmith
  * Added RCS Id tag
  *
@@ -43,7 +47,7 @@ public class jHandlerView extends JFrame implements Observer // SINGLETON
       Still I would like to get it working halfway decently. */
 
    /*--- RCS id ---------------------------------------------------------*/
-   static String rcsid="$Id: jHandlerView.java,v 1.2 2000/05/24 06:58:51 gbsmith Exp $";
+   static String rcsid="$Id: jHandlerView.java,v 1.3 2000/11/27 19:54:38 gbsmith Exp $";
 
    /*--- Data -----------------------------------------------------------*/
    private static jHandlerView _instance = null;
@@ -163,7 +167,7 @@ public class jHandlerView extends JFrame implements Observer // SINGLETON
          return;
       }
 
-      System.out.println("Refreshing...");
+      //System.out.println("Refreshing...");
       if(handlerModel == null)
       {
          listTable.setModel(null);
@@ -183,11 +187,9 @@ public class jHandlerView extends JFrame implements Observer // SINGLETON
          i++;
       }
 
-
       listTable.setModel(tmpModel);
       repaint();
    }
-
 
    /*--------------------------------------------------------------------*/
    private void doClose()
@@ -202,7 +204,7 @@ public class jHandlerView extends JFrame implements Observer // SINGLETON
    {
       // Local because it only affects what ResourceModel is VIEWED
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jHandlerView.java,v 1.2 2000/05/24 06:58:51 gbsmith Exp $";
+      final String rcsid = "$Id: jHandlerView.java,v 1.3 2000/11/27 19:54:38 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent ae)
@@ -221,7 +223,7 @@ public class jHandlerView extends JFrame implements Observer // SINGLETON
    {
       // *** Perhaps this shouldn't be local after all
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jHandlerView.java,v 1.2 2000/05/24 06:58:51 gbsmith Exp $";
+      final String rcsid = "$Id: jHandlerView.java,v 1.3 2000/11/27 19:54:38 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void windowClosing(WindowEvent event)

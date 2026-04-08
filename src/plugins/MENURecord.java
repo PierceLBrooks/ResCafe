@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/plugins/RCS/MENURecord.java,v 1.1 1999/10/21 21:38:58 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/src/plugins/RCS/MENURecord.java,v 1.2 2000/11/27 20:12:13 gbsmith Exp $ */
 
 import javax.swing.JMenu;
 
@@ -11,6 +11,9 @@ import java.util.Vector;
 /*=======================================================================*/
 /*
  * $Log: MENURecord.java,v $
+ * Revision 1.2  2000/11/27 20:12:13  gbsmith
+ * Added RCS ident tag
+ *
  * Revision 1.1  1999/10/21 21:38:58  gbsmith
  * Initial revision
  *
@@ -35,6 +38,9 @@ class MENURecord
 
    Vector MenuItems; // var
    // PlaceHolder    // 1 byte - 0 indicates end of list
+
+   /*--- RCS ------------------------------------------------------------*/
+   static final String rcsid = "$Id: MENURecord.java,v 1.2 2000/11/27 20:12:13 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    MENURecord()
@@ -96,7 +102,7 @@ class MenuItemRecord
    boolean hasKeyEquiv;
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: MENURecord.java,v 1.1 1999/10/21 21:38:58 gbsmith Exp $";
+   static final String rcsid = "$Id: MENURecord.java,v 1.2 2000/11/27 20:12:13 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    MenuItemRecord()

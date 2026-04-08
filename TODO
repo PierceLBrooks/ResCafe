@@ -1,11 +1,9 @@
-TODO on ResCafe v1.1+
-
-o Add a nifty splash screen on startup
+TODO on ResCafe v1.3+
 
 o Manual under 'Help' menu
 
 o Add support for multiple plugins for a single type. For example, one
-  might want ti view 'icl8's with both 'Joe Bob's Icon Viewer' and 'Bubba's
+  might want to view 'icl8's with both 'Joe Bob's Icon Viewer' and 'Bubba's
   Deluxe Icon Handler'. The handlers could be stored in a Vector in the
   Handler Hashtable. A menu or option box could allow switching between
   types.

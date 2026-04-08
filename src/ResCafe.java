@@ -1,6 +1,7 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/ResCafe.java,v 1.8 2000/05/25 06:39:05 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/ResCafe.java,v 1.9 2000/11/27 19:37:19 gbsmith Exp $ */
 
 import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
@@ -10,6 +11,7 @@ import java.io.RandomAccessFile;
 
 import ResourceManager.*;
 
+// ResCafé
 /*=======================================================================*/
 /* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
 /*=======================================================================*/
@@ -17,6 +19,10 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: ResCafe.java,v $
+ * Revision 1.9  2000/11/27 19:37:19  gbsmith
+ * Added new splash screen which tracks loading. Now uses Unicode for e-aigu.
+ * Incremented version to 1.3.
+ *
  * Revision 1.8  2000/05/25 06:39:05  gbsmith
  * Can now load multiple files given as arguments rather than just
  * one. Also added version String for title (!=RCS version).
@@ -54,11 +60,12 @@ public class ResCafe
    DocumentManager   mydocmgr;
    HandlerTable      myhandlers;
    FileController    myfctrl;
+   RCSplashWindow    myrcsw;
 
-   static String version = "1.2.5";
+   static String version = "1.3";
    
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ResCafe.java,v 1.8 2000/05/25 06:39:05 gbsmith Exp $";
+   static final String rcsid = "$Id: ResCafe.java,v 1.9 2000/11/27 19:37:19 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public static void main( String args[] )
@@ -67,28 +74,45 @@ public class ResCafe
 
       // Load files if given a names on the command-line
       if(args.length > 0)
+      {
+         app.myrcsw.updateText("Loading Resource Files...");
          for(int a = 0; a < args.length; a++) 
             app.mydocmgr.load(new File(args[a]));
+      }
+
+      if(args.length > 0) app.myrcsw.updateText("Files loaded");
+
+      app.go();
    }
 
    /*--------------------------------------------------------------------*/
    public ResCafe()
    {
+      myview     = new jMainResourceView("ResCaf\u00e9 " + version +
+                                         " Resource Extractor");
+      myrcsw     = new RCSplashWindow("RC_Splash.gif", myview);
       mydocmgr   = new DocumentManager();
       myfctrl    = new FileController();
       myhandlers = new HandlerTable();
 
+
       // Load handlers in own thread
+      myrcsw.updateText("Loading Handlers...");
+      myhandlers.addObserver(myrcsw);
       hview = jHandlerView.getInstance();
       hview.setHandlerModel(myhandlers);
       hview.setSize( 400, 300 );
       hview.show();
 
-      Thread handlerThread = new Thread(myhandlers);
-      handlerThread.start();
+      //Thread handlerThread = new Thread(myhandlers);
+      //handlerThread.start();
+      myhandlers.build();
+      
+      // Assemble view and attach parts
+      myrcsw.updateText("Assembling GUI...");
+      myview.assemble();
 
-      // Attach parts to View
-      myview  = new jMainResourceView("ResCafé " + version +  " Resource Extractor");
+      myrcsw.updateText("Making MVC connections...");
       myview.setDocManager(mydocmgr);
       myview.setHandlers(myhandlers);
       myview.setFileController(myfctrl);
@@ -99,10 +123,17 @@ public class ResCafe
 
       // Attach parts to Doc Manager
       mydocmgr.setHandlers(myhandlers);
+   }
 
+   /*--------------------------------------------------------------------*/
+   public void go()
+   {
       // Show the view... and begin
       myview.setLocation( 75, 75 );
-      myview.setSize( 800, 500 );
+
+      myview.setSize( 900, 550 );
       myview.show();
-   }
+      myhandlers.deleteObserver(myrcsw);
+      myrcsw.close();
+   }   
 }

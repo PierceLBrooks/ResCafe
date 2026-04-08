@@ -19,6 +19,7 @@ APPCLASSES=ResourceManager Colors Jarload Handlers \
 	RGBColorNames.class XpmImage.class \
 	MacResTypeListModel.class IconTable.class \
 	jHandlerView.class \
+	RCSplashWindow.class \
 	jMainResourceView.class ResCafe.class
 
 PLUGINS=MacResourceHandler.class \
@@ -33,7 +34,8 @@ PLUGINS=MacResourceHandler.class \
 	icl8ResourceHandler.class \
 	ics4ResourceHandler.class \
 	ics8ResourceHandler.class \
-	ics_maskResourceHandler.class
+	ics_maskResourceHandler.class \
+	icnsResourceHandler.class
 
 DO_JAR_COMPILE := $(shell if [ -f MultiClassLoader.java -a \
                                -f JarClassLoader.java -a \
@@ -79,7 +81,7 @@ plugins: app
 
 
 .java.class:
-	${JAVAC} -classpath .:/opt/java/classes/JimiProClasses.zip:${CLASSPATH} -d ${CLASSDIR}  $<
+	${JAVAC} -classpath .:/opt/java/classes/JimiProClasses.zip:/opt/jdk/jre/lib/rt.jar:${CLASSPATH} -d ${CLASSDIR}  $<
 
 clean:  
 	rm -f *.class

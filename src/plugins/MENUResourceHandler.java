@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/plugins/RCS/MENUResourceHandler.java,v 1.1 1999/10/21 21:40:41 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/src/plugins/RCS/MENUResourceHandler.java,v 1.2 2000/11/27 20:14:33 gbsmith Exp $ */
 
 /*=======================================================================*/
 import javax.swing.ImageIcon;
@@ -35,6 +35,10 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: MENUResourceHandler.java,v $
+ * Revision 1.2  2000/11/27 20:14:33  gbsmith
+ * Uses Unicode \u00c9 for capital E aigu. Added RCS ident tag to
+ * RowController inner class.
+ *
  * Revision 1.1  1999/10/21 21:40:41  gbsmith
  * Initial revision
  *
@@ -59,7 +63,7 @@ public class MENUResourceHandler extends MacResourceHandler
    private static final String[] columnNames = { "ResID", "Name", "Size", "Menu Title" };
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: MENUResourceHandler.java,v 1.1 1999/10/21 21:40:41 gbsmith Exp $";
+   static final String rcsid = "$Id: MENUResourceHandler.java,v 1.2 2000/11/27 20:14:33 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public String[] getTypes()
@@ -194,7 +198,7 @@ public class MENUResourceHandler extends MacResourceHandler
             String itemStr = tmpMIR.itemText;
             //System.out.println("Code: " + new String( new byte[]{ (byte)0xC9 } ) );
             //"É"
-            if(itemStr.endsWith("É"))
+            if(itemStr.endsWith("\u00c9")) // i.e., É = captial E aigu
                itemStr = itemStr.substring(0, itemStr.length() - 1) + "...";
 
             if(tmpMIR.hasSubMenu)
@@ -272,6 +276,9 @@ public class MENUResourceHandler extends MacResourceHandler
    /*====================================================================*/
    class RowController implements ListSelectionListener
    {
+      /*------ RCS ---------------------------------------------------------*/
+      static final String rcsid = "$Id: MENUResourceHandler.java,v 1.2 2000/11/27 20:14:33 gbsmith Exp $";
+
       /*-----------------------------------------------------------------*/
       public void valueChanged(ListSelectionEvent lse)
       {

@@ -1,6 +1,7 @@
-KNOWN_BUGS in ResCafe v1.2.5
-15 Jul 2000
+KNOWN_BUGS in ResCafe v1.3
+27 Nov 2000
 
+The 'icns' handler is still not there yet
 
 -----------------------------------------------------------------------------
 $Id: KNOWN_BUGS,v 1.1 2000/07/15 20:42:26 gbsmith Exp gbsmith $

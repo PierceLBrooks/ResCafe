@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/plugins/RCS/GBS_ImageResourceHandler.java,v 1.4 2000/05/24 06:21:14 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/src/plugins/RCS/GBS_ImageResourceHandler.java,v 1.5 2000/11/27 19:39:06 gbsmith Exp $ */
 
 import java.awt.BorderLayout;
 import java.awt.Image;
@@ -18,6 +18,10 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: GBS_ImageResourceHandler.java,v $
+ * Revision 1.5  2000/11/27 19:39:06  gbsmith
+ * Reduced 1-bit and 4-bit processing to generic size independent methods
+ * allowing for smaller code and easier reuse.
+ *
  * Revision 1.4  2000/05/24 06:21:14  gbsmith
  * Now uses custom XpmImage class instead of Jimi for XPM export.
  * Also now subclasses DefaultResourceHandler rather that
@@ -47,128 +51,92 @@ public abstract class GBS_ImageResourceHandler extends DefaultResourceHandler
    protected IndexColorModel icm256 = MacStandard256Palette.getColorModel();
 
     /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: GBS_ImageResourceHandler.java,v 1.4 2000/05/24 06:21:14 gbsmith Exp $";
+   static final String rcsid = "$Id: GBS_ImageResourceHandler.java,v 1.5 2000/11/27 19:39:06 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
-   protected Image process_ICN( byte rawData[] )
+   protected Image process_1bit( byte rawData[], int dim, boolean doMask )
+   {
+      MemoryImageSource mis;
+      byte iconData[];
+      int i, j, b;
+      int numbytes, moffset;
+
+      numbytes = dim * dim / 8;  //  _eight_ pixels per byte
+      moffset = doMask? numbytes: 0;
+
+      // Grab icon data
+      iconData = new byte[dim*dim];
+      for ( j = 0; j < numbytes; j++)
+         for ( b = 0; b < 8; b++)
+            iconData[j*8+b] = (byte)((rawData[j + moffset] &
+                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
+
+      mis = new MemoryImageSource(dim, dim, icm16, iconData, 0, dim);
+      return createImage(mis);
+   }
+
+   /*--------------------------------------------------------------------*/
+   protected Image process_4bit( byte rawData[], int dim )
    {
       MemoryImageSource mis;
       byte iconData[];
 
-      int i, j, b;
+      iconData = new byte[dim * dim];
+      for (int j = 0; j < dim*dim/2; j++) // _two_ pixels per byte
+      {
+         // Grab high 4 bytes
+         iconData[j*2]   = (byte)((rawData[j] >> 4) & 0x0F);
 
-      // Grab icon data
-      iconData = new byte[1024];
-      for ( j = 0; j < 128; j++)
-         for ( b = 0; b < 8; b++)
-            iconData[j*8+b] = (byte)((rawData[j] &
-                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
+         // Grab low 4 bytes
+         iconData[j*2+1] = (byte)(rawData[j] & 0x0F);
+      }
 
-      mis = new MemoryImageSource(32, 32, icm16, iconData, 0, 32);
+      mis = new MemoryImageSource(dim, dim, icm16, iconData, 0, dim);
       return createImage(mis);
+   }
+
+   /*--------------------------------------------------------------------*/
+   protected Image process_ICN( byte rawData[] )
+   {
+      return process_1bit( rawData, 32, false );
    }
 
    /*--------------------------------------------------------------------*/
    protected Image process_ICN_mask( byte rawData[] )
    {
-      MemoryImageSource mis;
-      byte maskData[];
-      int i, j, b;
-
-      // Grab mask data
-      maskData = new byte[1024];
-      for ( j = 0; j < 128; j++)
-         for ( b = 0; b < 8; b++)
-            maskData[j*8+b] = (byte)((rawData[j + 128] &
-                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
-
-      mis = new MemoryImageSource(32, 32, icm16, maskData, 0, 32);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   protected Image process_icl4( byte rawData[] )
-   {
-      MemoryImageSource mis;
-      byte iconData[];
-
-      iconData = new byte[1024];
-      for (int j = 0; j < 512; j++)
-      {
-         // Grab high 4 bytes
-         iconData[j*2]   = (byte)((rawData[j] >> 4) & 0x0F);
-
-         // Grab low 4 bytes
-         iconData[j*2+1] = (byte)(rawData[j] & 0x0F);
-      }
-
-      mis = new MemoryImageSource(32, 32, icm16, iconData, 0, 32);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   protected Image process_icl8( byte rawData[] )
-   {
-      MemoryImageSource mis;
-
-      // Can create icon directly from data
-      mis = new MemoryImageSource(32, 32, icm256, rawData, 0, 32);
-      return createImage(mis);
+      return process_1bit( rawData, 32, true );
    }
 
    /*--------------------------------------------------------------------*/
    protected Image process_ics( byte rawData[] )
    {
-      int i, j, b;
-      MemoryImageSource mis;
-      byte iconData[];
-
-      // Grab icon data
-      iconData = new byte[256];
-      for ( j = 0; j < 32; j++)
-         for ( b = 0; b < 8; b++)
-            iconData[j*8+b] = (byte)((rawData[j] &
-                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
-
-      mis = new MemoryImageSource(16, 16, icm16, iconData, 0, 16);
-      return createImage(mis);
+      return process_1bit( rawData, 16, false );
    }
 
    /*--------------------------------------------------------------------*/
    protected Image process_ics_mask( byte rawData[] )
    {
-      int i, j, b;
-      MemoryImageSource mis;
-      byte maskData[];
+      return process_1bit( rawData, 16, true );
+   }
 
-      // Grab mask data
-      maskData = new byte[256];
-      for ( j = 0; j < 32; j++)
-         for ( b = 0; b < 8; b++)
-            maskData[j*8+b] = (byte)((rawData[j+32] &
-                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
-
-      mis = new MemoryImageSource(16, 16, icm16, maskData, 0, 16);
-      return createImage(mis);
+   /*--------------------------------------------------------------------*/
+   protected Image process_icl4( byte rawData[] )
+   {
+      return process_4bit( rawData, 32 );
    }
 
    /*--------------------------------------------------------------------*/
    protected Image process_ics4( byte rawData[] )
    {
-      MemoryImageSource mis;
-      byte iconData[];
+      return process_4bit( rawData, 16 );
+   }
 
-      iconData = new byte[256];
-      for (int j = 0; j < 128; j++)
-      {
-         // Grab high 4 bytes
-         iconData[j*2]   = (byte)((rawData[j] >> 4) & 0x0F);
-
-         // Grab low 4 bytes
-         iconData[j*2+1] = (byte)(rawData[j] & 0x0F);
-      }
-
-      mis = new MemoryImageSource(16, 16, icm16, iconData, 0, 16);
+   /*--------------------------------------------------------------------*/
+   protected Image process_icl8( byte rawData[] )
+   {
+      // Can create icon directly from data
+      MemoryImageSource mis =
+         new MemoryImageSource(32, 32, icm256, rawData, 0, 32);
       return createImage(mis);
    }
 
