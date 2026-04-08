@@ -20,7 +20,7 @@ APPCLASSES=ResourceManager Colors Jarload Handlers \
 	MacResTypeListModel.class IconTable.class \
 	jHandlerView.class \
 	RCSplashWindow.class \
-	jMainResourceView.class ResCafe.class
+	jMainResourceView.class ResCafe.class ResPresso.class
 
 PLUGINS=MacResourceHandler.class \
 	CURSResourceHandler.class \
@@ -46,12 +46,10 @@ VPATH=ResourceManager:.
 CLASSDIR=.
 
 #----------------------------------------------------------------------------
-all: appjar
-
-appjar: ResCafe.jar
+all: ResCafe.jar
 
 ResCafe.jar: app
-	jar -c0f ResCafe.jar *.class ResourceManager/*.class
+	jar -c0f ResCafe.jar *.class ResourceManager/*.class *.gif
 
 app: ${APPCLASSES}
 

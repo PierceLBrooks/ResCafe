@@ -12,32 +12,37 @@
 #
 #----------------------------------------------------------------------------
 
-#RESCAFEHOME=/opt/java/classes/ResCafe
 RESCAFEHOME=.
+JIMI=/opt/java/classes/JimiProClasses.zip
+JAI=/opt/jdk/jre/lib/ext/jai_codec.jar
+VERBOSE=0
 
 # Get data file abs paths
 n=0
 for arg
 do
-   if echo $arg | grep "^/" > /dev/null
-   then
-      # An abs path - keep it
-      resfile[$n]=$arg
-   else
-      # An rel path - convert to abs
-      resfile[$n]=$PWD/$arg
-   fi
+   case $arg in
+      -*v*) VERBOSE=1 ;;
+      -*) # Skip other command line opts
+         ;;
+      /*) # An abs path - keep it
+         resfile[$n]=$arg ;;
+      *) 
+         # A rel path - convert to abs
+         resfile[$n]=$PWD/$arg
+   esac
 
    n=$((n+1))
 done
 
-
-#CLASSPATH=${RESCAFEHOME}/ResCafe.jar:${RESCAFEHOME}/plugins:${CLASSPATH}
-#CLASSPATH=ResCafe.jar:plugins:${CLASSPATH}
-cd $RESCAFEHOME
+CLASSPATH=${JAI}:${JIMI}:${RESCAFEHOME}/ResCafe.jar:${RESCAFEHOME}/plugins
+#cd $RESCAFEHOME
 
 
-java -cp ${RESCAFEHOME}/ResCafe.jar:${RESCAFEHOME}/plugins \
-     ResCafe \
-     ${resfile[*]} \
-     2>/dev/null  &
+if [ $VERBOSE -eq 0 ]
+then
+   java -cp $CLASSPATH ResCafe ${resfile[*]} >/dev/null 2>/dev/null
+else
+   java -cp $CLASSPATH ResCafe ${resfile[*]}
+fi
+

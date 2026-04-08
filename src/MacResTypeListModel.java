@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/MacResTypeListModel.java,v 1.3 1999/10/21 22:59:37 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/RCS/MacResTypeListModel.java,v 1.3 1999/10/21 22:59:37 gbsmith Exp $ */
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;

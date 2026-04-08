@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/DefaultResourceHandler.java,v 1.6 2000/11/27 19:57:24 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/RCS/DefaultResourceHandler.java,v 1.6 2000/11/27 19:57:24 gbsmith Exp $ */
 
 import javax.swing.*;
 

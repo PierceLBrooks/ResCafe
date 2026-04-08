@@ -13,11 +13,16 @@ OK, kinda jerky though.
 
 REQUIREMENTS
 ============
-1. Java 1.1 or better - available from http://java.sun.com/
+1. Java 1.2 or better -  available from http://java.sun.com/
+   I develop with Java 1.3, but I think Java 1.2 will work.
+   Not so sure about Java 1.1. In any case you will need Java2D available.
 
 2. Swing classes - also available from http://java.sun.com/
 
-3. ResCafé can locate the resource fork in a full MacBinary file. However,
+3. Java Advanced Imaging (JAI) - available from from Sun at
+   http://www.javasoft.com/products/java-media/jai/index.html.
+
+4. ResCafé can locate the resource fork in a full MacBinary file. However,
    it can also read extracted resource forks alone which can be much smaller
    that full Mac files, depending on the size of the data fork. A utility
    for extracting the resource fork from a Mac file might be useful. I use
@@ -33,11 +38,10 @@ INSTALLATION
 ============
 1. Unpack the archive (I guess you already did).
 
-2. Edit `ResCafe.sh` and fix the ResCafe location. Make sure the ResCafe.jar
-   file is in CLASSPATH. ResCafe.sh can go anywhere - but notice that it cd's
-   to the main ResCafe dir to make the JVM call. You don't even have to use it
-   if you don't want to - non-UNIX users won't anyway and will have to find
-   their own solution (May I suggest installing Linux? ;-) ).
+2. Edit `ResCafe.sh` and `ResPresso.sh and fix the ResCafe location.
+   Make sure the ResCafe.jar file is in CLASSPATH. You don't even have to use the
+   shell scripts if you don't want to - non-UNIX users won't anyway and will
+   have to find their own solution (May I suggest installing Linux? ;-) ).
 
 3. Make sure ResCafe.jar, plugins and icons are under the same
    directory:
@@ -96,4 +100,4 @@ UPDATE: It looks like this feature is being added to the standard Java
 
 
 -----------------------------------------------------------------------------
-$Id: INSTALL,v 1.3 2000/07/15 21:42:24 gbsmith Exp $
+$Id: INSTALL,v 1.4 2000/12/12 20:43:13 gbsmith Exp $

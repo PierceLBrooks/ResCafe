@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/jHandlerView.java,v 1.3 2000/11/27 19:54:38 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/RCS/jHandlerView.java,v 1.3 2000/11/27 19:54:38 gbsmith Exp $ */
 
 import javax.swing.JFrame;
 import javax.swing.JButton;

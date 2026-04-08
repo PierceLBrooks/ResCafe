@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/ResourceManager/RCS/ResourceModel.java,v 1.7 2000/05/24 02:51:56 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/ResourceManager/RCS/ResourceModel.java,v 1.8 2000/12/11 19:16:19 gbsmith Exp $ */
 
 package ResourceManager;
 
@@ -9,10 +9,16 @@ import java.io.RandomAccessFile;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Observable;
+import java.util.Set;
 
 /*=======================================================================*/
 /*
  * $Log: ResourceModel.java,v $
+ * Revision 1.8  2000/12/11 19:16:19  gbsmith
+ * Added method to return list of types present as a String[],
+ * Added a general contains(TYPE) method
+ * Made getCountofType() safer, returning 0 if the type is absent
+ *
  * Revision 1.7  2000/05/24 02:51:56  gbsmith
  * Removed superfluous void return type from constructors
  * after compiler warnings.
@@ -65,26 +71,20 @@ public class ResourceModel extends Observable
    Hashtable theTypes;
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ResourceModel.java,v 1.7 2000/05/24 02:51:56 gbsmith Exp $";
+   static final String rcsid = "$Id: ResourceModel.java,v 1.8 2000/12/11 19:16:19 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    /**
     * Sets up a new ResourceModel
     */
-   public ResourceModel()
-   {
-      init();
-   }
+   public ResourceModel() { init(); }
 
    /*----------------------------------------------------------------------*/
    /**
     * Sets up a new ResourceModel to load from the given filename
     * @param inName the new name of the file
     */
-   public ResourceModel(String inName)
-   {
-      init(inName);
-   }
+   public ResourceModel(String inName) { init(inName); }
 
    /*----------------------------------------------------------------------*/
    /**
@@ -146,10 +146,7 @@ public class ResourceModel extends Observable
    /**
     * Returns the name of the Mac Resource Fork file being managed
     */
-   public String getFilename()
-   {
-      return sourceFileName;
-   }
+   public String getFilename() { return sourceFileName; }
 
    /*----------------------------------------------------------------------*/
    /**
@@ -181,7 +178,7 @@ public class ResourceModel extends Observable
 
       inraf.seek(seekSet);
       theHeader = new ResourceHeader();
-      
+
       // MRHeader does no seeking so seekSet not needed
       theHeader.read(inraf);
 
@@ -260,7 +257,28 @@ public class ResourceModel extends Observable
    {
       if(theTypes == null) return null;
       if(theTypes.isEmpty()) return null;
-      else return theTypes.keys();
+      return theTypes.keys();
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
+    * Returns a String array of all the Types of the Model
+    */
+   public String[] getTypeArray()
+   {
+      String outArray[];
+      Set    mykeys;
+
+      if(theTypes == null || theTypes.isEmpty())
+      {
+         outArray = new String[0];
+         return outArray;
+      }
+
+      mykeys = theTypes.keySet();
+      outArray = new String[mykeys.size()];
+      mykeys.toArray(outArray);
+      return outArray;
    }
 
    /*----------------------------------------------------------------------*/
@@ -307,6 +325,16 @@ public class ResourceModel extends Observable
 
    /*----------------------------------------------------------------------*/
    /**
+    * A method to check whether any Resources of the given Type exist
+    * @param inType the 4-Letter ID Key of the desired ResourceType
+    */
+   public boolean contains(String inType) 
+   {
+      return theTypes.containsKey(inType);
+   }
+
+   /*----------------------------------------------------------------------*/
+   /**
     * A method to check whether a Resource of the given Type and ID exists
     * @param inType the 4-Letter ID Key of the desired ResourceType
     * @param idtocheck the numeric ID Key of the desired Resource
@@ -332,9 +360,12 @@ public class ResourceModel extends Observable
    /*----------------------------------------------------------------------*/
    /**
     * Returns the number of Resources of the given type
+    * @param inType the 4-Letter ID Key of the desired ResourceType
     */
    public int getCountOfType(String inType)
    {
-      return ((ResourceType)theTypes.get(inType)).numItems;
+      if(theTypes.containsKey(inType))
+         return ((ResourceType)theTypes.get(inType)).numItems;
+      else return 0;
    }
 }

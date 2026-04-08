@@ -1,6 +1,16 @@
 ResCafe Change Log
 ==================
 
+1.3 -> 1.4
+---------------
+Yea! Thanks to some tips from Peter Stuer <Peter.Stuer@pandora.be> I finally
+got the 'icns' plugin working! I can now save 32-bit icons with alpha. I
+tweaked a lot of the code so it can better locate the plugins and icons
+directories. The doc menu is now alphabetized and can be traversed with
+'Ctrl +' and 'Ctrl -'. Added a new application to the package called
+'ResPresso' which is a command-line version much like the original 'macfork'.
+It reuses the ResourceManager package and the plugin handlers. Very cool.
+
 1.2.5 -> 1.3
 ---------------
 Made some minor code modifications to solve problems I was having with
@@ -43,6 +53,6 @@ Initial Release
 
 
 -----------------------------------------------------------------------------
-$Id: CHANGELOG,v 1.3 2000/07/15 20:23:00 gbsmith Exp $
+$Id: CHANGELOG,v 1.4 2000/12/12 20:30:08 gbsmith Exp $
 -----------------------------------------------------------------------------
 

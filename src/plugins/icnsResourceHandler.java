@@ -1,37 +1,32 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/src/plugins/RCS/icnsResourceHandler.java,v 1.2 2000/11/27 19:51:37 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/plugins/RCS/icnsResourceHandler.java,v 1.4 2000/12/11 02:48:28 gbsmith Exp $ */
 
-import javax.swing.JList;
+import com.sun.media.jai.codec.*; // Java Advanced Imaging - tools for image I/O
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TableModelEvent;
-
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.Image;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import java.awt.image.DirectColorModel;
-import java.awt.image.IndexColorModel;
+import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import ResourceManager.*;
 
@@ -42,6 +37,15 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: icnsResourceHandler.java,v $
+ * Revision 1.4  2000/12/11 02:48:28  gbsmith
+ * Used Composite classes to apply 8-bit masks to images making
+ * an alpha channel. Then used Java Advanced Imaging calls to save
+ * the images in PNG format (which supports full alpha channel).
+ *
+ * Revision 1.3  2000/12/01 07:01:18  gbsmith
+ * Finally! Used information from Peter Stuer, builder of IconShop, to
+ * add methods for 32-bit subtypes!
+ *
  * Revision 1.2  2000/11/27 19:51:37  gbsmith
  * Added a bunch of additional subtypes along with processing code
  * for those subtypes. Still no 32-bit icons or saving though.
@@ -50,23 +54,6 @@ import ResourceManager.*;
  * Initial revision
  *
  */
-
-
-/*------------------------------------------------------------------------
-Memory/space saving idea:
-   selective allocation and display of type variables based on actual
-   encounter w/data so...
-
-   - don't allocate image arrays until subtype first encountered
-   - keep track of encountered types in a hash
-   - Only create columns for types that have been encountered
-
-   - keep potential column types in separate array
-   - Build new column array out of hash
-   - Use hash to determine size and contents of new array
-
--------------------------------------------------------------------------*/
-
 
 /*=======================================================================*/
 public class icnsResourceHandler extends GBS_ImageResourceHandler
@@ -78,45 +65,36 @@ public class icnsResourceHandler extends GBS_ImageResourceHandler
    { "ICN#", "Imask", "icl4", "icl8", "il32", "l8mk",
      "ics#", "imask", "ics4", "ics8", "is32", "s8mk",
      "ich#", "hmask", "ich4", "ich8", "ih32", "h8mk",
-     "icm#", "mmask", "icm4", "icm8", "im32"//, "m8mk"
+     "icm#", "mmask", "icm4", "icm8", "im32" //, "m8mk"
+                                   // "it32", "t8mk"
    };
 
    TableCellRenderer renderer = new IconRenderer();
 
-   //    B&W     Masks        4-bit    8-bit    32-bit
-   Image ICNs[], ICN_masks[], icl4s[], icl8s[], il32s[], l8mks[]; // large
-   Image icss[], ics_masks[], ics4s[], ics8s[], is32s[], s8mks[]; // small
-   Image ichs[], ich_masks[], ich4s[], ich8s[], ih32s[], h8mks[]; // h???
-
    String types[];
-
    String mytypes[] = { "icns" };
 
-   Resource myResArray[];
-   String icon_names[];
-   Hashtable seenSubtypes;
-   String[] columnNames;
+   Resource  myResArray[];
+   String    icon_names[];
+   String    columnNames[];
+   Hashtable theImgs;
+
+   String myname    = "icnsResourceHandler";
+   String myversion = "v1.0";
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: icnsResourceHandler.java,v 1.2 2000/11/27 19:51:37 gbsmith Exp $";
+   static final String rcsid = "$Id: icnsResourceHandler.java,v 1.4 2000/12/11 02:48:28 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
-   public String[] getTypes()
-   {
-      return mytypes;
-   }
+   public String[] getTypes() { return mytypes;  }
 
    /*--------------------------------------------------------------------*/
    public void init( )
    {
-      myResArray = resData.getResArray();
-      seenSubtypes = new Hashtable();
-
       Resource currentRes;
 
-      ICNs = ICN_masks = icl4s = icl8s = il32s = l8mks = null;
-      icss = ics_masks = ics4s = ics8s = is32s = s8mks = null;
-      ichs = ich_masks = ich4s = ich8s = ih32s = h8mks = null;
+      myResArray = resData.getResArray();
+      theImgs    = new Hashtable();
 
       icon_names = new String[myResArray.length];
       types      = new String[myResArray.length];
@@ -140,15 +118,13 @@ public class icnsResourceHandler extends GBS_ImageResourceHandler
       }
    }
 
-
    /*--------------------------------------------------------------------*/
    private void read(int index, byte rawData[])
    {
       DataInputStream dis =
          new DataInputStream(new ByteArrayInputStream(rawData));
       byte subname[] = new byte[4];
-      int fullsize   = 0;
-      int subsize    = 0;
+      int  fullsize  = 0, subsize = 0;
       byte subData[];
 
       StringBuffer tmpnames = new StringBuffer();
@@ -173,151 +149,100 @@ public class icnsResourceHandler extends GBS_ImageResourceHandler
             process(new String(subname), index, subData);
          }
 
-      } catch (IOException ioe) {
-      }
+      } catch (IOException ioe) { }
 
       types[index] = new String(tmpnames);
    }
 
    /*--------------------------------------------------------------------*/
-   private void process(String type, int index, byte rawData[])
+   private void process(String type, int i, byte rawData[])
    {
-      if(type.compareTo("ICN#") == 0)
+      Image curr[];
+
+
+      if(!theImgs.containsKey(type))
       {
-         if(ICNs == null)      ICNs      = new Image[myResArray.length];
-         if(ICN_masks == null) ICN_masks = new Image[myResArray.length];
-         ICNs[index]      = process_ICN( rawData );
-         ICN_masks[index] = process_ICN_mask( rawData );
-         seenSubtypes.put(type,    new Boolean(true));
-         seenSubtypes.put("Imask", new Boolean(true));
+         theImgs.put(type, new Image[myResArray.length]);
+         System.out.println("*** NOTE: saw subtype '" + type + "'");
       }
 
-      if(type.compareTo("icl4") == 0)
-      {
-         if(icl4s == null) icl4s = new Image[myResArray.length];
-         icl4s[index] = process_icl4( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
+      // These have masks so it is a special case
+      if(type.compareTo("ics#") == 0 && !theImgs.containsKey("imask"))
+         theImgs.put("imask", new Image[myResArray.length]);
+      if(type.compareTo("ICN#") == 0 && !theImgs.containsKey("Imask"))
+         theImgs.put("Imask", new Image[myResArray.length]);
+      if(type.compareTo("ich#") == 0 && !theImgs.containsKey("hmask"))
+         theImgs.put("hmask", new Image[myResArray.length]);
 
-      if(type.compareTo("icl8") == 0)
-      {
-         if(icl8s == null) icl8s = new Image[myResArray.length];
-         icl8s[index] = process_icl8( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
+      // Dispatch processing to proper method
+      curr = (Image[])theImgs.get(type);
+      if     (type.compareTo("ics4") == 0) curr[i] = process_ics4(rawData);
+      else if(type.compareTo("ics8") == 0) curr[i] = process_ics8(rawData);
+      else if(type.compareTo("is32") == 0) curr[i] = process_is32(rawData);
+      else if(type.compareTo("s8mk") == 0) curr[i] = process_s8mk(rawData);
 
-      if(type.compareTo("il32") == 0)
-      {
-         if(il32s == null) il32s = new Image[myResArray.length];
-         il32s[index] = process_il32( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
+      else if(type.compareTo("icl4") == 0) curr[i] = process_icl4(rawData);
+      else if(type.compareTo("icl8") == 0) curr[i] = process_icl8(rawData);
+      else if(type.compareTo("il32") == 0) curr[i] = process_il32(rawData);
+      else if(type.compareTo("l8mk") == 0) curr[i] = process_l8mk(rawData);
 
-      if(type.compareTo("l8mk") == 0)
-      {
-         if(l8mks == null) l8mks = new Image[myResArray.length];
-         l8mks[index] = process_l8mk( rawData ); // HEY
-         seenSubtypes.put(type, new Boolean(true));
-      }
+      else if(type.compareTo("ich4") == 0) curr[i] = process_ich4(rawData);
+      else if(type.compareTo("ich8") == 0) curr[i] = process_ich8(rawData);
+      else if(type.compareTo("ih32") == 0) curr[i] = process_ih32(rawData);
+      else if(type.compareTo("h8mk") == 0) curr[i] = process_h8mk(rawData);
 
-      if(type.compareTo("ics#") == 0)
-      {
-          if(icss == null)      icss      = new Image[myResArray.length];
-          if(ics_masks == null) ics_masks = new Image[myResArray.length];
-          icss[index]      = process_ics( rawData );
-          ics_masks[index] = process_ics_mask( rawData );
-          seenSubtypes.put(type,    new Boolean(true));
-          seenSubtypes.put("imask", new Boolean(true));
-      }
+      // 128 x 128 icons ?!
+      //else if(type.compareTo("it32") == 0) curr[i] = process_it32(rawData);
+      //else if(type.compareTo("t8mk") == 0) curr[i] = process_t8mk(rawData);
 
-      if(type.compareTo("ics4") == 0)
+      // Masks are a special case
+      else if(type.compareTo("ics#") == 0)
       {
-         if(ics4s == null) ics4s = new Image[myResArray.length];
-         ics4s[index] = process_ics4( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
-
-      if(type.compareTo("ics8") == 0)
-      {
-         if(ics8s == null) ics8s = new Image[myResArray.length];
-         ics8s[index] = process_ics8( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
-
-      if(type.compareTo("is32") == 0)
-      {
-         if(is32s == null) is32s = new Image[myResArray.length];
-         is32s[index] = process_is32( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
-
-      if(type.compareTo("s8mk") == 0)
-      {
-         if(s8mks == null) s8mks = new Image[myResArray.length];
-         s8mks[index] = process_s8mk( rawData ); // HEY
-         seenSubtypes.put(type, new Boolean(true));
-      }
-
-      if(type.compareTo("ich#") == 0)
-      {
-          if(ichs == null)      ichs      = new Image[myResArray.length];
-          if(ich_masks == null) ich_masks = new Image[myResArray.length];
-          ichs[index]      = process_ich( rawData );
-          ich_masks[index] = process_ich_mask( rawData );
-          seenSubtypes.put(type,    new Boolean(true));
-          seenSubtypes.put("hmask", new Boolean(true));
-      }
-
-      if(type.compareTo("ich4") == 0)
-      {
-         if(ich4s == null) ich4s = new Image[myResArray.length];
-         ich4s[index] = process_ich4( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
-
-      if(type.compareTo("ich8") == 0)
-      {
-         if(ich8s == null) ich8s = new Image[myResArray.length];
-         ich8s[index] = process_ich8( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
-
-      if(type.compareTo("ih32") == 0)
-      {
-         if(ih32s == null) ih32s = new Image[myResArray.length];
-         //ih32s[index] = process_ih32( rawData );
-         seenSubtypes.put(type, new Boolean(true));
-      }
-
-      if(type.compareTo("h8mk") == 0)
-      {
-         if(h8mks == null) h8mks = new Image[myResArray.length];
-         //h8mks[index] = process_h8mk( rawData ); // HEY
-         seenSubtypes.put(type, new Boolean(true));
+         curr[i] = process_ics(rawData);
+         curr    = (Image[])theImgs.get("imask");
+         curr[i] = process_ics_mask(rawData);
+      } else if(type.compareTo("ICN#") == 0) {
+         curr[i] = process_ICN(rawData);
+         curr    = (Image[])theImgs.get("Imask");
+         curr[i] = process_ICN_mask(rawData);
+      } else if(type.compareTo("ich#") == 0) {
+         curr[i] = process_ich(rawData);
+         curr    = (Image[])theImgs.get("hmask");
+         curr[i] = process_ich_mk(rawData);
       }
    }
 
    /*--------------------------------------------------------------------*/
    public void display( )
    {
+      int cn, st;
       TableColumn tc;
       DefaultTableModel tmpModel;
-      Image currentImg;
+      Image  currentImg;
+      Vector seenSubtypes;
 
       Resource myResArray[] = resData.getResArray();
 
       // Build new array of column names
-      columnNames = new String[3 + seenSubtypes.size()];
+      columnNames    = new String[3 + theImgs.size()];
       columnNames[0] = basicColumnNames[0];
       columnNames[1] = basicColumnNames[1];
       columnNames[2] = basicColumnNames[2];
 
-      int cn=3;
-      for(int st=0; st < subtypes.length; st++)
-      {
-         if(seenSubtypes.containsKey(subtypes[st]))
+      seenSubtypes = new Vector(theImgs.keySet());
+
+      // Make column for the known subtypes in the array
+      cn=3;
+      for(st=0; st < subtypes.length; st++)
+         if(seenSubtypes.contains(subtypes[st]))
+         {
             columnNames[cn++] = subtypes[st];
-      }
+            seenSubtypes.removeElement(subtypes[st]);
+         }
+
+      // Add any unknown subtypes encountered
+      for(st=0; st < seenSubtypes.size(); st++)
+         columnNames[cn++] = (String)seenSubtypes.elementAt(st);
 
       tmpModel = new DefaultTableModel( columnNames, myResArray.length );
 
@@ -331,25 +256,24 @@ public class icnsResourceHandler extends GBS_ImageResourceHandler
 
          // Icons -------------------------------------------------------
          for(cn=3; cn < columnNames.length; cn++)
-         {
             tmpModel.setValueAt(fetchIcon(i, cn), i, cn);
-         }
       }
 
       resTable = new JTable(tmpModel);
-      resTable.setRowHeight(36);
+      resTable.setRowHeight(36); //36
 
       // IMPORTANT! Add decorator first THEN set Icon Renderers afterwards.
       //            This prevents the renders from being trampled by the
       //            Decorator model.
       //
-
       addDecorator();
       for(cn = 3; cn < columnNames.length; cn++)
-      {
-         tc = resTable.getColumn(columnNames[cn]);
-         tc.setCellRenderer(renderer);
-      }
+         if(columnNames[cn] != null)
+         {
+            tc = resTable.getColumn(columnNames[cn]);
+            tc.setCellRenderer(renderer);
+         }
+
       optimizeColumnWidth();
 
       JScrollPane rtsp = new JScrollPane(resTable);
@@ -361,98 +285,139 @@ public class icnsResourceHandler extends GBS_ImageResourceHandler
    private Object fetchIcon(int row, int col)
    {
       String colname = columnNames[col];
-      Image outimg;
+      String notFound = "n/a";
+      Image[] curr;
 
-      if(colname == null) outimg = null;
-      else if(colname.compareTo("ICN#")  == 0) outimg = ICNs[row];
-      else if(colname.compareTo("Imask") == 0) outimg = ICN_masks[row];
-      else if(colname.compareTo("icl4")  == 0) outimg = icl4s[row];
-      else if(colname.compareTo("icl8")  == 0) outimg = icl8s[row];
-      else if(colname.compareTo("il32")  == 0) outimg = il32s[row];
-      else if(colname.compareTo("l8mk")  == 0) outimg = l8mks[row];
-      else if(colname.compareTo("ics#")  == 0) outimg = icss[row];
-      else if(colname.compareTo("imask") == 0) outimg = ics_masks[row];
-      else if(colname.compareTo("ics4")  == 0) outimg = ics4s[row];
-      else if(colname.compareTo("ics8")  == 0) outimg = ics8s[row];
-      else if(colname.compareTo("is32")  == 0) outimg = is32s[row];
-      else if(colname.compareTo("s8mk")  == 0) outimg = s8mks[row];
-      else if(colname.compareTo("ich#")  == 0) outimg = ichs[row];
-      else if(colname.compareTo("hmask") == 0) outimg = ich_masks[row];
-      else if(colname.compareTo("ich4")  == 0) outimg = ich4s[row];
-      else if(colname.compareTo("ich8")  == 0) outimg = ich8s[row];
-      else if(colname.compareTo("ih32")  == 0) outimg = ih32s[row];
-      else if(colname.compareTo("h8mk")  == 0) outimg = h8mks[row];
-      else outimg = null;
+      if(colname   == null)             return notFound;
+      if(!theImgs.containsKey(colname)) return notFound;
 
-      if(outimg == null) return "n/a";
-      else return outimg;
+      curr = (Image[])theImgs.get(colname);
+      if(curr      == null)             return notFound;
+      if(curr[row] == null)             return notFound;
+
+      return curr[row];
    }
 
    /*--------------------------------------------------------------------*/
-   protected Image process_il32( byte rawData[] ) { return null; }
-   
-   /*--------------------------------------------------------------------*/
-   protected Image process_is32( byte rawData[] ) { return null; }
-
-   /*--------------------------------------------------------------------*/
-   protected Image process_ich( byte rawData[] )
+   protected Image process_32bit( byte rawData[], int dim )
    {
-      return process_1bit( rawData, 48, false );
+      // i[x]32 is exactly the same as icl8 except that each pixel is a 32-bit
+      // word of the format ARGB.
+      // - BUT -
+      // Indeed, if the size is less than 4096 the bitmap is compressed using
+      // RLE. The trick is that the compression is per color channel.
+      //
+      // - Peter Stuer <Peter.Stuer@pandora.be>
+
+      BufferedImage bi; // BufferedImage is a Java2D subclass of Image
+      int iconData[] = new int[dim * dim];
+
+      if(rawData.length == dim * dim * 4) // Full size - 4 bytes/pixel
+         // transform to intermediate ints - is this necessary?
+         //    Isn't there an "automatic" way to do this?
+         //    Can't we create an ARGB image straight from the bytes?
+         for(int i = 0; i < dim * dim; i++)
+         {
+            //             AARRGGBB
+            iconData[i] = 0xFF000000;
+            // iconData[i] |= (int)(rawData[i*4]   << 24) & 0xFF000000; // Alpha
+            iconData[i] |= (int)(rawData[i*4+1] << 16) & 0x00FF0000; // Red
+            iconData[i] |= (int)(rawData[i*4+2] <<  8) & 0x0000FF00; // Green
+            iconData[i] |= (int)(rawData[i*4+3])       & 0x000000FF; // Blue
+         }
+      else RLE32_decode(rawData, iconData); // The 'ix32' is RLE compressed
+
+      bi = new BufferedImage(dim, dim, BufferedImage.TYPE_INT_ARGB);
+      bi.setRGB(0, 0, dim, dim, iconData, 0, dim);
+      return bi;
    }
 
    /*--------------------------------------------------------------------*/
-   protected Image process_ich_mask( byte rawData[] )
+   private void RLE32_decode(byte rawData[], int outData[])
    {
-      return process_1bit( rawData, 48, true );
-   }
-   
-   /*--------------------------------------------------------------------*/
-   protected Image process_ich4( byte rawData[] )
-   {
-      return process_4bit( rawData, 48 );
+      // Adapted from a C algorithm provided by
+      // Peter Stuer <Peter.Stuer@pandora.be>
+
+      // PRE: Assume outData is allocated and of sufficient size
+      int myshift, mymask, r, y, i, len, val;
+
+      // Alpha
+      myshift = 24;
+      mymask  = 0xFF000000;
+      r = 0;
+
+      // Drop in a fully opaque alpha channel - apply mask later
+      for(i = 0; i < outData.length; i++)  outData[i] |= 0xFF000000;
+
+      // Red, Green, Blue
+      while(myshift > 0) // 24, 16, 8, 0
+      {
+         myshift -= 8;   // Next byte...
+         mymask  >>>= 8; // Right shift in zeroes
+         y = 0;
+         while(y < outData.length)
+            if( (rawData[r] & 0x80) == 0)
+            {
+               // top bit is clear - run of various vals to follow
+               len = (int)(0xFF & rawData[r++]) + 1;   // 1 <= len <= 128
+               for(i = 0; i < len; i++)
+                  outData[y++] |= (int)(rawData[r++] << myshift) & mymask;
+            } else {
+               // top bit is set - run of one val to follow
+               len = (int)(0xFF & rawData[r++]) - 125; // 3 <= len <= 130
+               val = (int)(rawData[r++] <<  myshift) & mymask;
+               for(i = 0; i < len; i++) outData[y++] |= val;
+            }
+      }
    }
 
    /*--------------------------------------------------------------------*/
    protected Image process_ich8( byte rawData[] )
    {
       MemoryImageSource mis =
-         new MemoryImageSource(48, 48, icm256, rawData, 0, 48);
+      new MemoryImageSource(48, 48, icm256, rawData, 0, 48);
       return createImage(mis);
    }
 
    /*--------------------------------------------------------------------*/
-   protected Image process_l8mk( byte rawData[] )
+   protected Image process_8bit_mk( byte rawData[], int dim )
    {
-      // This is supposed to be an 8-bit mask - an alpha channel, 
-      // BUT notice how we don't use an alpha channel below treating it
-      // intstead like an 8-bit grey image. Could this be a problem later
-      // on like when we need to actually apply the mask to the image to
-      // save it to file?
-      MemoryImageSource mis =
-         new MemoryImageSource(32, 32,             //  Red  Green  Blue
-                               new DirectColorModel(8, 0xFF, 0xFF, 0xFF),
-                               rawData, 0, 32);
-      return createImage(mis);
+      BufferedImage bi;
+      int maskData[] = new int[dim * dim]; // These masks are all square
+
+      // Shift bytes into Alpha pos leaving RGB at 0 (Black)
+      for(int i = 0; i < dim * dim; i++) maskData[i] = rawData[i] << 24;
+      bi = new BufferedImage(dim, dim, BufferedImage.TYPE_INT_ARGB);
+      bi.setRGB(0, 0, dim, dim, maskData, 0, dim);
+      return bi;
    }
-   
+
    /*--------------------------------------------------------------------*/
-   protected Image process_s8mk( byte rawData[] ) 
-   {
-      // Can create icon directly from data
-      MemoryImageSource mis =
-         new MemoryImageSource(16, 16, 
-                               new DirectColorModel(8, 0xFF, 0xFF, 0xFF),
-                               //  DirectColorModel(8, 0xFF, 0xFF, 0xFF, 0xFF),
-                               rawData, 0, 16);
-      return createImage(mis);
-   }
-   
+   protected Image process_ich(byte rd[] ) { return process_1bit(rd, 48, false); }
+   protected Image process_ich_mk(byte rd[]) { return process_1bit(rd, 48, true); }
+   protected Image process_ich4(byte rd[]) { return process_4bit(rd, 48); }
+   protected Image process_s8mk(byte rd[]) { return process_8bit_mk(rd, 16); }
+   protected Image process_l8mk(byte rd[]) { return process_8bit_mk(rd, 32); }
+   protected Image process_h8mk(byte rd[]) { return process_8bit_mk(rd, 48); }
+   protected Image process_t8mk(byte rd[]) { return process_8bit_mk(rd, 128); }
+   protected Image process_is32(byte rd[]) { return process_32bit(rd, 16); }
+   protected Image process_il32(byte rd[]) { return process_32bit(rd, 32); }
+   protected Image process_ih32(byte rd[]) { return process_32bit(rd, 48); }
+   protected Image process_it32(byte rd[]) { return process_32bit(rd, 128); }
+
    /*--------------------------------------------------------------------*/
-   public void save ( File savedir)
+   public void save( File savedir )
    {
       StringBuffer tmpfilename;
-      String filename, saveType;
-      Resource myResArray[];
+      String filename, imgname, saveType, subType;
+      Enumeration subtypeKeys;
+      File outfile, subtypedir;
+      FileWriter fw;
+      FileOutputStream fos;
+      XpmImage xpmout;
+      Image imgToSave[], maskToSave[];
+      BufferedImage interbi, outbi;
+      Graphics2D g2;
 
       if(resData == null)
       {
@@ -460,45 +425,159 @@ public class icnsResourceHandler extends GBS_ImageResourceHandler
          return;
       }
 
-      saveType   = resData.getID();
-      myResArray = resData.getResArray();
+      Resource myResArray[] = resData.getResArray();
+      saveType = resData.getID();
+      System.out.println("Saving resources of type \'" + saveType + "\'");
 
-      System.out.println("Saving resources of type \'" +
-                         saveType + "\' as bytes");
-      for(int i=0; i < myResArray.length; i++)
+      // The type 'icns' is a bit of a special case since it is a type
+      // composed of other subtypes. Along these lines we will create
+      // subdirs in the given saveDir corresponding to the various subtypes.
+      // The datafiles for each subtype will then be saved inside.
+
+      // Iterate over the hash 'theImgs' and attempt to create subdirs
+      // then save all of that type.
+      subtypeKeys = theImgs.keys();
+      while(subtypeKeys.hasMoreElements())
       {
-         tmpfilename = new StringBuffer(savedir.getPath());
-         tmpfilename.append( File.separator + myResArray[i].getID() );
-         if(myResArray[i].getName() != null)
-            tmpfilename.append("_" + myResArray[i].getName().
-                               replace(' ', '_').
-                               replace(File.separatorChar, '+'));
-         tmpfilename.append(".raw");
-         filename = tmpfilename.toString().replace(' ', '_');
+         subType = (String)subtypeKeys.nextElement();
 
-         try
+         // Don't save masks - will apply them
+         if(subType.endsWith("mask")) continue;
+         if(subType.endsWith("8mk"))  continue;
+
+         System.err.println("\tsubtype = " + subType);
+
+         maskToSave = null;
+         imgToSave = (Image[])theImgs.get(subType);
+         if(imgToSave == null)
          {
-            FileOutputStream fos = new FileOutputStream(filename);
-            fos.write(myResArray[i].getData());
-         } catch (Exception whatever) {
-            System.err.println("ERROR: Got exception " + whatever );
+            System.err.println("WARNING: No " + subType + "icons to save");
+            continue;
+         }
+
+         // Match current type with appropriate mask
+         if(subType.compareTo("ics#") == 0 ||
+            subType.compareTo("ics4") == 0 ||
+            subType.compareTo("ics8") == 0 )
+            maskToSave = (Image[])theImgs.get("imask");
+         if(subType.compareTo("ICN#") == 0 ||
+            subType.compareTo("icl4") == 0 ||
+            subType.compareTo("icl8") == 0 )
+            maskToSave = (Image[])theImgs.get("Imask");
+         if(subType.compareTo("ich#") == 0 ||
+            subType.compareTo("ich4") == 0 ||
+            subType.compareTo("ich8") == 0 )
+            maskToSave = (Image[])theImgs.get("hmask");
+         if(subType.compareTo("icm#") == 0 ||
+            subType.compareTo("icm4") == 0 ||
+            subType.compareTo("icm8") == 0 )
+            maskToSave = (Image[])theImgs.get("mmask");
+         if(subType.compareTo("is32") == 0)
+            maskToSave = (Image[])theImgs.get("s8mk");
+         if(subType.compareTo("il32") == 0)
+            maskToSave = (Image[])theImgs.get("l8mk");
+         if(subType.compareTo("ih32") == 0)
+            maskToSave = (Image[])theImgs.get("h8mk");
+         if(subType.compareTo("im32") == 0)
+            maskToSave = (Image[])theImgs.get("m8mk");
+
+         // Make a dir for the subtype
+         subtypedir = new File(savedir, subType);
+         if(subtypedir.exists() && !subtypedir.isDirectory())
+            subtypedir.delete();
+         if(!subtypedir.exists()) subtypedir.mkdir();
+
+         for(int i=0; i < myResArray.length; i++)
+         {
+            tmpfilename = new StringBuffer("" + myResArray[i].getID() );
+
+            // Try to find resource name
+            if(myResArray[i].getName() != null)
+            {
+               imgname = myResArray[i].getName();
+               tmpfilename.append("_" + myResArray[i].getName());
+            } else if(icon_names[i] != null) {
+               imgname = icon_names[i];
+               tmpfilename.append("_" + icon_names[i]);
+            } else imgname = "icon" + myResArray[i].getID();
+
+            if(subType.endsWith("32")) tmpfilename.append(".png");
+            else                       tmpfilename.append(".xpm");
+
+            filename = tmpfilename.toString().
+               replace(' ', '_').
+               replace(File.separatorChar, '+');
+            imgname = imgname.replace(' ', '_');
+
+            if(imgToSave[i] == null)
+            {
+               System.err.println("WARNING: Image " + subType + ":" +
+                                  imgname + " seems to be null!");
+               continue;
+            }
+
+            // Actually save the image
+            try
+            {
+               outfile = new File(subtypedir, filename);
+               fos = new FileOutputStream(outfile);
+
+               if(subType.endsWith("32")) // 32-bit image, save as PNG
+               {
+                  interbi = (BufferedImage)imgToSave[i];
+                  if(maskToSave == null || maskToSave[i] == null)
+                     outbi = interbi; // just dump the images
+                  else  // Apply mask if one exists
+                  {
+                     outbi = new BufferedImage(interbi.getWidth(),
+                                               interbi.getHeight(),
+                                               BufferedImage.TYPE_INT_ARGB);
+                     g2 = outbi.createGraphics();
+                     g2.drawImage(interbi, null, 0, 0);
+
+                     // Here is where the mask gets applied
+                     interbi = (BufferedImage)maskToSave[i];
+                     g2.setComposite(AlphaComposite.DstIn);
+                     g2.drawImage(interbi, null, 0, 0);
+                  }
+
+                  // NOTE: According to the literature that I have read
+                  // (mainly from Sun) this JAI/PNG stuff is in a state of
+                  // flux. But it is the only thing I found that works
+                  // correctly for PNG.
+
+                  // Create the ParameterBlock.
+                  PNGEncodeParam param =
+                     PNGEncodeParam.getDefaultEncodeParam(outbi);
+
+                  //Create the PNG image encoder.
+                  ImageEncoder enc = ImageCodec.createImageEncoder("PNG", fos,
+                                                                   param);
+                  enc.encode(outbi); // Save...
+               } else { // Should we even bother keeping the XPM stuff?
+                  fw = new FileWriter(outfile);
+                  xpmout = (maskToSave[i] == null)?
+                     new XpmImage(imgname, this, imgToSave[i]):
+                     new XpmImage(imgname, this, imgToSave[i], maskToSave[i]);
+                  xpmout.write(fw);
+               }
+            } catch (Exception whatever) {
+               System.err.println("ERROR: While saving, got exception " + whatever );
+            }
          }
       }
    }
-
 
    /*--------------------------------------------------------------------*/
    public String[] about( )
    {
       String[] pluginfo =
-      { "icnsResourceHandler",
-        "v0.9",
+      { myname,
+        myversion,
         "by G. Brannon Smith",
         " ",
         "This plugin attempts to handle the newer icns 32-bit icon."
       };
-
       return pluginfo;
    }
 }
-

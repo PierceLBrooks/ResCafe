@@ -1,17 +1,23 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/DocumentManager.java,v 1.2 1999/10/28 05:47:15 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/RCS/DocumentManager.java,v 1.3 2000/12/11 02:20:50 gbsmith Exp $ */
 
 import java.io.File;
 import java.io.RandomAccessFile;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Observable;
 import java.util.Hashtable;
+import java.util.Set;
 
 import ResourceManager.*;
 
-/*=======================================================================*/
+/*=========================================================================*/
 /*
  * $Log: DocumentManager.java,v $
+ * Revision 1.3  2000/12/11 02:20:50  gbsmith
+ * Changed listDocuments() to sort doc names before returning;
+ * Also some general code clean-up
+ *
  * Revision 1.2  1999/10/28 05:47:15  gbsmith
  * Added getter method for the name of the current file to
  * enable checkbox menu in viewer.
@@ -21,43 +27,40 @@ import ResourceManager.*;
  *
  */
 
-/*=======================================================================*/
+/*=========================================================================*/
 public class DocumentManager extends Observable
 {
-   /*--- Data -----------------------------------------------------------*/
-   Hashtable resModTable;
-   
+   /*--- Data -------------------------------------------------------------*/
+   Hashtable     resModTable;
    ResourceModel currentResMod;
-   String currentName;
-
-   FilePicker myfp;
+   String        currentName;
+   FilePicker    myfp;
    HandlerTable  htab;
 
+   /*------ RCS -----------------------------------------------------------*/
+   static final String rcsid = "$Id: DocumentManager.java,v 1.3 2000/12/11 02:20:50 gbsmith Exp $";
 
-   /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: DocumentManager.java,v 1.2 1999/10/28 05:47:15 gbsmith Exp $";
-
-   /*--- Methods --------------------------------------------------------*/
+   /*--- Methods ----------------------------------------------------------*/
    public DocumentManager()
    {
       resModTable = new Hashtable();
       myfp = new JFilePicker();
    }
 
-   /*-----------------------------------------------------------------*/
-   public void setHandlers( HandlerTable inHtab )
-   {
-      htab = inHtab;
-   }
-   /*--------------------------------------------------------------------*/
-   void saveAll( ) 
+   /*----------------------------------------------------------------------*/
+   public void setHandlers( HandlerTable inHtab ) { htab = inHtab; }
+   ResourceModel getCurrent( ) { return currentResMod; }
+   String getCurrentName( ) { return currentName;  }
+
+   /*----------------------------------------------------------------------*/
+   void saveAll( )
    {
       File typedir, dirToSave;
       String mytype;
       Enumeration typeKeys;
       MacResourceHandler saveHandler = null;
 
-      /*-----------------------------------------------------------------*/
+      /*-------------------------------------------------------------------*/
       dirToSave =  myfp.getSaveDir("Save All Types",
                                    currentResMod.getFilename() + "_export");
       if( dirToSave != null )
@@ -67,7 +70,6 @@ public class DocumentManager extends Observable
          while( typeKeys.hasMoreElements() )
          {
             mytype = (String)typeKeys.nextElement();
-
             if(htab.canHandleType(mytype))
                try
                {
@@ -76,9 +78,7 @@ public class DocumentManager extends Observable
                } catch (Exception e) {
                   System.err.println(e);
                }
-            else
-               saveHandler = new DefaultResourceHandler();
-
+            else saveHandler = new DefaultResourceHandler();
 
             typedir = new File(dirToSave, mytype);
             if(typedir.exists() && !typedir.isDirectory()) typedir.delete();
@@ -92,8 +92,8 @@ public class DocumentManager extends Observable
       }
    }
 
-   /*--------------------------------------------------------------------*/
-   void saveHandled( )    
+   /*----------------------------------------------------------------------*/
+   void saveHandled( )
    {
       File dirToSave, typedir;
       MacResourceHandler saveHandler = null;
@@ -116,9 +116,7 @@ public class DocumentManager extends Observable
                {
                   saveHandler = (MacResourceHandler)htab.
                      getHandler(mytype).newInstance();
-               } catch (Exception e) {
-                  System.err.println(e);
-               }
+               } catch (Exception e) { System.err.println(e); }
 
                typedir = new File(dirToSave, mytype);
                if(typedir.exists() && !typedir.isDirectory()) typedir.delete();
@@ -133,13 +131,13 @@ public class DocumentManager extends Observable
       }
    }
 
-   /*--------------------------------------------------------------------*/
+   /*----------------------------------------------------------------------*/
    void save(String whichType )
    {
       File typedir, dirToSave;
       MacResourceHandler saveHandler = null;
 
-      if(whichType == null)
+      if(whichType == null) 
       {
          System.err.println("ERROR: no Type Selected");
          return;
@@ -158,18 +156,14 @@ public class DocumentManager extends Observable
       {
          // Start saving
          if(htab.canHandleType(whichType))
-         {
             try
             {
                saveHandler =
                   (MacResourceHandler)htab.getHandler(whichType).newInstance();
-            } catch (Exception e) {
-               System.err.println(e);
-            }
-         } else {
+            } catch (Exception e) { System.err.println(e); }
+         else
             saveHandler = new DefaultResourceHandler();
-         }
-
+      
          typedir = new File(dirToSave, whichType);
          if(typedir.exists() && !typedir.isDirectory()) typedir.delete();
          if(!typedir.exists()) typedir.mkdir();
@@ -181,8 +175,8 @@ public class DocumentManager extends Observable
       }
    }
 
-   /*--------------------------------------------------------------------*/
-   boolean isLoaded( File fileToCheck ) 
+   /*----------------------------------------------------------------------*/
+   boolean isLoaded( File fileToCheck )
    {
       // Not implemented yet
       Enumeration docKeys = resModTable.keys();
@@ -198,51 +192,36 @@ public class DocumentManager extends Observable
       return false;
    }
 
-   /*--------------------------------------------------------------------*/
-   void load( ) 
+   /*----------------------------------------------------------------------*/
+   void load( )
    {
       File fileToOpen = myfp.getFileToOpen();
       if(fileToOpen != null) load( fileToOpen );
    }
 
-   /*--------------------------------------------------------------------*/
-   void load( File inFile ) 
-   { 
+   /*----------------------------------------------------------------------*/
+   void load( File inFile )
+   {
       RandomAccessFile tmpRAFile;
       MacBinaryHeader mbh;
 
-      if(!inFile.exists())
-      {
-         myfp.tellFileMissing( inFile.getName() );
-         return;
-      }
-      
-      if(!inFile.isFile())
-      {
-         myfp.tellNotFile( inFile.getName() );
-         return;
-      }
+      if(!inFile.exists()) { myfp.tellFileMissing(inFile.getName()); return; }
+      if(!inFile.isFile()) { myfp.tellNotFile(inFile.getName());     return; }
+      if(isLoaded(inFile)) { myfp.tellFileLoaded(inFile.getName());  return; }
 
-      if(isLoaded(inFile))
-      {
-         myfp.tellFileLoaded( inFile.getName() );
-         return;
-      }
-      
       // File exists - open and load
       try
       {
          ResourceModel tmpResMod = new ResourceModel();
-         
-         tmpRAFile = new RandomAccessFile(inFile, "r");
 
+         tmpRAFile = new RandomAccessFile(inFile, "r");
          tmpResMod.init();
          tmpResMod.setFilename(inFile.getPath());
 
          // Check to see if this is a MacBinary file
          mbh = new MacBinaryHeader();
-         mbh.read(tmpRAFile);         
-         if(mbh.validate()) 
+         mbh.read(tmpRAFile);
+         if(mbh.validate())
          {
             // This is a MacBinary file - must always seek to ResFork
             tmpRAFile.seek(mbh.getResForkOffset());
@@ -255,56 +234,30 @@ public class DocumentManager extends Observable
 
          tmpRAFile.close();
          currentResMod = tmpResMod;
-         
          insert(inFile);
 
          setChanged();
          notifyObservers();
-      } catch(Exception ioe) {
-         myfp.tellCannotOpen( inFile.getName() );
-      }
+      } catch(Exception ioe) { myfp.tellCannotOpen( inFile.getName() ); }
 
       tmpRAFile = null;
    }
 
-   /*--------------------------------------------------------------------*/
-   void insert(File inFile)
+   /*----------------------------------------------------------------------*/
+   void insert( File inFile )
    {
       String filename = inFile.getName();
       int n = 2;
 
       while(resModTable.containsKey(filename))
          filename = inFile.getName() + " <" + n++ + ">";
-      
+
       currentName = filename;
-      resModTable.put( currentName, currentResMod );      
+      resModTable.put( currentName, currentResMod );
    }
 
-   /*--------------------------------------------------------------------*/
-   String[] listDocuments( ) 
-   {
-      Enumeration docKeys = resModTable.keys();
-      String outdocs[] = new String[resModTable.size()];
-      for(int d = 0; docKeys.hasMoreElements(); d++)
-      outdocs[d] = (String)docKeys.nextElement();
-
-      return outdocs;
-   }
-
-   /*--------------------------------------------------------------------*/
-   ResourceModel getCurrent( ) 
-   {
-      return currentResMod;
-   }
-
-   /*--------------------------------------------------------------------*/
-   String getCurrentName( ) 
-   {
-      return currentName;
-   }
-
-   /*--------------------------------------------------------------------*/
-   void choose(String choice )          
+   /*----------------------------------------------------------------------*/
+   void choose( String choice )
    {
       if(resModTable.containsKey(choice))
       {
@@ -316,8 +269,8 @@ public class DocumentManager extends Observable
       }
    }
 
-   /*--------------------------------------------------------------------*/
-   void close( )
+   /*----------------------------------------------------------------------*/
+   void close()
    {
       // Seems like this could be easier
       // ------------------------------------------------------------
@@ -333,7 +286,7 @@ public class DocumentManager extends Observable
          if(resModTable.get(mykey) == currentResMod)
          {
             resModTable.remove(mykey);
-            if(docKeys.hasMoreElements())
+            if(docKeys.hasMoreElements()) 
                tmpKey = (String)docKeys.nextElement();
             currentName   = tmpKey;
             currentResMod = (ResourceModel)resModTable.get(tmpKey);
@@ -345,15 +298,29 @@ public class DocumentManager extends Observable
    }
 
    /*--------------------------------------------------------------------*/
-   void closeAll( )
+   void closeAll()
    {
       Enumeration docKeys = resModTable.keys();
-      while(docKeys.hasMoreElements()) 
+      while(docKeys.hasMoreElements())
          resModTable.remove(docKeys.nextElement());
       currentName   = null;
       currentResMod = null;
-      
+
       setChanged();
       notifyObservers();
+   }
+
+   /*----------------------------------------------------------------------*/
+   String[] listDocuments()
+   {
+      String outDocs[];
+      Set docSet;
+
+      docSet  = resModTable.keySet();
+      outDocs = new String[docSet.size()];
+      docSet.toArray(outDocs);
+      Arrays.sort(outDocs);
+
+      return outDocs;
    }
 }

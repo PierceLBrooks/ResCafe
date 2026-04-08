@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/RCS/HandlerTable.java,v 1.12 2000/12/12 19:46:17 gbsmith Exp $ */
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,9 +8,15 @@ import java.io.FilenameFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import java.io.StreamTokenizer;
+import java.io.StringReader;
+
+import java.net.URL;
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Observable;
+import java.util.Vector;
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -22,6 +28,14 @@ import java.util.zip.ZipFile;
 /*=======================================================================*/
 /*
  * $Log: HandlerTable.java,v $
+ * Revision 1.12  2000/12/12 19:46:17  gbsmith
+ * Class can now locate the main plugin dir based on own location;
+ * Also scans CLASSPATH for additional plugin dirs
+ *
+ * Revision 1.11  2000/12/11 02:39:17  gbsmith
+ * Added setVerbosity() accessor method to supress reports easily;
+ * General code clean-up and reordering
+ *
  * Revision 1.10  2000/11/27 19:53:17  gbsmith
  * Reworked verbose output formatting to work with new splash screen observer.
  *
@@ -66,10 +80,12 @@ class HandlerTable extends Observable implements Runnable
    private Hashtable handlerTypeList;
    private Class masterClass;
    private String plugDirName = "plugins";
-   private boolean VERBOSE = true; //private boolean VERBOSE = false;
+   private boolean VERBOSE = true;
+   private String defaultPlugDir = "plugins";
+   private Vector pluginDirs;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.12 2000/12/12 19:46:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public HandlerTable()
@@ -84,30 +100,87 @@ class HandlerTable extends Observable implements Runnable
           System.err.println(cnfe);
           System.err.println("Master class (MacResourceHandler) " +
                              "registration FAILED... EXITING");
-          System.exit(1);
+          System.exit(1); // No masterclass? The party's over... )-;
        }
    }
 
    /*--------------------------------------------------------------------*/
-   public void run()
+   public void run() { build(); }
+   public void setVerbosity(boolean v) { VERBOSE = v; }
+   public int getTypeCount( ) { return handlerData.size();  }
+   public Enumeration getTypeKeys( )  { return handlerData.keys(); }
+
+   boolean canHandleType(Object tk) { return handlerData.containsKey(tk); }
+   Class getHandler(Object tk) { return (Class)handlerData.get(tk); }
+
+   /*--------------------------------------------------------------------*/
+   void getPluginDirs()
    {
-      build();
+      URL myURL;
+      String myPath;      
+      Class me;
+      File myFile;
+      int retval = 0;
+      StreamTokenizer st;
+
+      pluginDirs = new Vector();
+
+      // Find myself (Who am I?! WHERE did I come from?!)
+      me = this.getClass();
+      myURL = me.getResource(me.getName() + ".class");
+      
+      // Convert to path - chop off protocol
+      myPath = myURL.getFile();
+      myPath = myPath.substring(myPath.indexOf(':') + 1);
+
+      // Goto up two levels (self + JAR file)
+      myFile = new File(myPath).getParentFile().getParentFile();
+      myFile = new File(myFile, "plugins");
+
+      pluginDirs.add(myFile.toString()); // It all seems so convoluted...
+      
+      // Add other plugin dirs int CLASSPATH
+      st = new StreamTokenizer(new StringReader(System.getProperty("java.class.path")));
+
+      st.whitespaceChars(File.pathSeparatorChar, File.pathSeparatorChar);
+      st.wordChars(File.separatorChar, File.separatorChar);
+
+      st.wordChars('_', '_');
+      st.ordinaryChar('.');
+      st.wordChars('.', '.');
+
+      do
+      {
+         try { retval = st.nextToken(); }
+         catch (IOException ioe) {  }
+         if(retval != StreamTokenizer.TT_EOF)
+         {
+            if(st.sval.endsWith("plugins") || 
+               st.sval.endsWith("plugins" + File.separator))
+               if(!pluginDirs.contains(st.sval)) pluginDirs.add(st.sval);
+         }
+      } while(retval != StreamTokenizer.TT_EOF);
    }
+   
 
    /*--------------------------------------------------------------------*/
    synchronized void build()
    {
       /* This seems like a lot to synchronize but we really only want
          one thread messing with (esp. rebuilding) the table at a time */
-      File pluginDir = new File( plugDirName );
-      if(VERBOSE) System.out.println("");
-      if(pluginDir.isDirectory()) processDirectory(pluginDir);
-      else
-      {
-         System.err.println("FATAL ERROR: Invalid Plugin Directory");
-         System.exit(1);
-      }
+      File currDir;
 
+      getPluginDirs();
+
+      for(int d=0; d < pluginDirs.size(); d++)
+      {
+         currDir = new File((String)pluginDirs.get(d));
+         if(VERBOSE) System.out.println("");
+         if(currDir.isDirectory()) processDirectory(currDir);
+         else  System.err.println("ERROR: Invalid Plugin Directory - '" +
+                                  (String)pluginDirs.get(d) + "'");
+      }
+      
       setChanged();
       notifyObservers();
 
@@ -115,19 +188,7 @@ class HandlerTable extends Observable implements Runnable
    }
 
    /*--------------------------------------------------------------------*/
-   public int getTypeCount( )
-   {
-      return handlerData.size();
-   }
-
-   /*--------------------------------------------------------------------*/
-   public Enumeration getTypeKeys( )
-   {
-      return handlerData.keys();
-   }
-
-   /*--------------------------------------------------------------------*/
-   public String getHandlerName( String typekey )
+   public String getHandlerName(String typekey)
    {
       return handlerData.get(typekey).toString().substring(6);
    }
@@ -174,35 +235,28 @@ class HandlerTable extends Observable implements Runnable
          }
          System.out.println();
       }
-
       System.out.println();
    }
 
    /*--------------------------------------------------------------------*/
    void processDirectory( File searchdir)
    {
-      String plugfiles[];
-      String plugdirs[];
-      String jarfiles[];
-
+      String plugfiles[], plugdirs[], jarfiles[], supportedTypes[];
       String strippedClass;
       Class currentClass;
-      String supportedTypes[];
       StringBuffer foundStr;
 
       SubdirClassLoader sdcl = new SubdirClassLoader(searchdir);
-
       if(VERBOSE) System.out.println("----- ENTER " + searchdir +
                                      "-----------------------------------");
+
       //--------------------------------------------------------------------
       // Probe class files
       if(VERBOSE) System.out.print("Probing class files in " +
                                      searchdir + "...");
       plugfiles = searchdir.list( new ClassFileFilter() );
-
       if(VERBOSE)
-         if(plugfiles.length > 0) System.out.println("found " +
-                                                     plugfiles.length);
+         if(plugfiles.length > 0) System.out.println("found " + plugfiles.length);
          else                     System.out.println("none.");
 
       for(int i=0; i < plugfiles.length; i++)
@@ -213,7 +267,7 @@ class HandlerTable extends Observable implements Runnable
          {
             String searchname = searchdir.getName();
             currentClass = sdcl.loadClass(strippedClass);
-            
+
             foundStr = new StringBuffer("" + currentClass);
             if(checkSuperclass(currentClass))
             {
@@ -244,7 +298,7 @@ class HandlerTable extends Observable implements Runnable
                // PROBLEM: This also records invalid types...
 
             }
-            
+
             setChanged();
             notifyObservers(foundStr.toString());
 
@@ -372,13 +426,12 @@ class HandlerTable extends Observable implements Runnable
 
       //--------------------------------------------------------------------
       // Probe subdirs
-      if(VERBOSE) System.out.print("Probing subdirectories in " +
-                                     searchdir + "... ");
+      if(VERBOSE)
+         System.out.print("Probing subdirectories in " + searchdir + "... ");
       plugdirs = searchdir.list( new DirFilter() );
 
       if(VERBOSE)
-         if(plugdirs.length > 0) System.out.println("found " +
-                                                    plugdirs.length);
+         if(plugdirs.length > 0) System.out.println("found " + plugdirs.length);
          else                    System.out.println("none.");
 
       for(int i=0; i < plugdirs.length; i++)
@@ -388,16 +441,18 @@ class HandlerTable extends Observable implements Runnable
       }
 
       //--------------------------------------------------------------------
-      if(VERBOSE) System.out.flush();
-      if(VERBOSE) System.out.println("----- EXIT " + searchdir +
-                                     "-----------------------------------");
-      if(VERBOSE) System.out.println("");
+      if(VERBOSE)
+      {
+         System.out.flush();
+         System.out.println("----- EXIT " + searchdir +
+                            "-----------------------------------");
+         System.out.println("");
+      }
    }
 
    /*--------------------------------------------------------------------*/
    boolean checkSuperclass(Class inClass)
    {
-      //Class obj
       Class supadupa = inClass.getSuperclass();
       while(supadupa != null)
       {
@@ -407,18 +462,6 @@ class HandlerTable extends Observable implements Runnable
 
       return false;
    }
-
-   /*--------------------------------------------------------------------*/
-   boolean canHandleType(Object typekey)
-   {
-      return handlerData.containsKey(typekey);
-   }
-
-   /*--------------------------------------------------------------------*/
-   Class getHandler(Object typekey)
-   {
-      return (Class)handlerData.get(typekey);
-   }
 }
 
 
@@ -426,7 +469,7 @@ class HandlerTable extends Observable implements Runnable
 class ClassFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.12 2000/12/12 19:46:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -442,7 +485,7 @@ class ClassFileFilter implements FilenameFilter
 class DirFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.12 2000/12/12 19:46:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -457,7 +500,7 @@ class DirFilter implements FilenameFilter
 class JarFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.12 2000/12/12 19:46:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -475,12 +518,11 @@ class JarFileFilter implements FilenameFilter
 */
 class SubdirClassLoader extends ClassLoader
 {
-
    /*--- Data -----------------------------------------------------------*/
    File searchdir;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.10 2000/11/27 19:53:17 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.12 2000/12/12 19:46:17 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public SubdirClassLoader( File indir )
@@ -540,12 +582,8 @@ class SubdirClassLoader extends ClassLoader
       fileName = searchdir.getPath() + File.separatorChar +
       className.replace('.', File.separatorChar) + ".class";
 
-      try
-      {
-         fis = new FileInputStream(fileName);
-      } catch (Exception e) {
-         return null;
-      }
+      try { fis = new FileInputStream(fileName); }
+      catch (Exception e) { return null; }
 
       BufferedInputStream   bis = new BufferedInputStream(fis);
       ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -558,9 +596,7 @@ class SubdirClassLoader extends ClassLoader
             out.write(nextByte);
             nextByte = bis.read();
          }
-      } catch (IOException ioe) {
-         return null;
-      }
+      } catch (IOException ioe) { return null; }
 
       return out.toByteArray();
    }

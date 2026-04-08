@@ -55,7 +55,7 @@ plttResourceHandler: Palette.class plttResourceHandler.class
 
 
 .java.class:
-	${JAVAC} -classpath .:..:/opt/java/classes/JimiProClasses.zip:/opt/jdk/jre/lib/rt.jar:${CLASSPATH}   $<
+	${JAVAC} -classpath .:..:/opt/java/classes/JimiProClasses.zip:/opt/jdk/jre/lib/ext/jai_codec.jar:/opt/jdk/jre/lib/rt.jar:${CLASSPATH}   $<
 
 
 clean:  

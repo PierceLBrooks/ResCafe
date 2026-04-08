@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/src/plugins/RCS/MENUResourceHandler.java,v 1.2 2000/11/27 20:14:33 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/plugins/RCS/MENUResourceHandler.java,v 1.2 2000/11/27 20:14:33 gbsmith Exp $ */
 
 /*=======================================================================*/
 import javax.swing.ImageIcon;

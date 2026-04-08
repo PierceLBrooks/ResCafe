@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/src/plugins/RCS/clutResourceHandler.java,v 1.4 1999/10/22 04:09:24 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/plugins/RCS/clutResourceHandler.java,v 1.4 1999/10/22 04:09:24 gbsmith Exp $ */
 
 import javax.swing.JList;
 import javax.swing.JScrollPane;

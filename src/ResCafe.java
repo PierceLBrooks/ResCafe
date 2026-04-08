@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/ResCafe.java,v 1.9 2000/11/27 19:37:19 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/RCS/ResCafe.java,v 1.10 2000/12/11 19:18:42 gbsmith Exp $ */
 
 import java.awt.Dialog;
 import java.awt.Frame;
@@ -19,6 +19,9 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: ResCafe.java,v $
+ * Revision 1.10  2000/12/11 19:18:42  gbsmith
+ * Switched to SplashScreen that loads a default image from the JAR file
+ *
  * Revision 1.9  2000/11/27 19:37:19  gbsmith
  * Added new splash screen which tracks loading. Now uses Unicode for e-aigu.
  * Incremented version to 1.3.
@@ -65,7 +68,7 @@ public class ResCafe
    static String version = "1.3";
    
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ResCafe.java,v 1.9 2000/11/27 19:37:19 gbsmith Exp $";
+   static final String rcsid = "$Id: ResCafe.java,v 1.10 2000/12/11 19:18:42 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public static void main( String args[] )
@@ -90,11 +93,10 @@ public class ResCafe
    {
       myview     = new jMainResourceView("ResCaf\u00e9 " + version +
                                          " Resource Extractor");
-      myrcsw     = new RCSplashWindow("RC_Splash.gif", myview);
+      myrcsw     = new RCSplashWindow(myview);
       mydocmgr   = new DocumentManager();
       myfctrl    = new FileController();
       myhandlers = new HandlerTable();
-
 
       // Load handlers in own thread
       myrcsw.updateText("Loading Handlers...");

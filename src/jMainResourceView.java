@@ -1,7 +1,6 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.3/src/RCS/jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/RCS/jMainResourceView.java,v 1.16 2000/12/11 05:58:40 gbsmith Exp $ */
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -27,6 +26,7 @@ import java.awt.Event;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -47,6 +47,10 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: jMainResourceView.java,v $
+ * Revision 1.16  2000/12/11 05:58:40  gbsmith
+ * Added KeyListener module to implement document switching via
+ * 'Ctrl-' and 'Ctrl+' keystrokes
+ *
  * Revision 1.15  2000/11/27 19:50:05  gbsmith
  * Split constructor into short constructor and assemble() method. Eliminated
  * some commented code. Used Unicode \u00e9 for e-aigu. Incremented version
@@ -149,25 +153,23 @@ public class jMainResourceView extends JFrame implements Observer
    IconTable       icons;    // them models anyway
 
    /*------ Controllers ---------------------------------------------------*/
-   FileController        flistener;
-   WindowController      locWinListener;
-   MenuItemController    locMenuListener;
-   DocMenuItemController locDocMenuListener;
-   TypeListController    locListListener;
+   FileController     flistener;
+   WindowController   locWinListener;
+   DocController      locDocListener;
+   MenuItemController locMenuListener;
+   TypeListController locListListener;
 
    /*------ Misc ----------------------------------------------------------*/
    Thread iconThread, handlerThread; // for loading the icons, handlers
+   int currentDocIndex;
 
    /*------ RCS -----------------------------------------------------------*/
    static final String rcsid =
-   "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
+   "$Id: jMainResourceView.java,v 1.16 2000/12/11 05:58:40 gbsmith Exp $";
 
    /*--- Methods ----------------------------------------------------------*/
-   public jMainResourceView(String frameTitle) // constructor
-   {
-      super(frameTitle);
-   }
-   
+   public jMainResourceView(String frameTitle) { super(frameTitle); }
+
    /*----------------------------------------------------------------------*/
    public void assemble()
    {
@@ -228,6 +230,8 @@ public class jMainResourceView extends JFrame implements Observer
       myTypeList.addListSelectionListener(locListListener =
                                           new TypeListController());
 
+      addKeyListener(locDocListener);
+
       /* Reset split pane to nicer proportions ----------------------------*/
       jsp.setDividerLocation(jsp.getMinimumDividerLocation());
 
@@ -237,7 +241,7 @@ public class jMainResourceView extends JFrame implements Observer
 
    /*----------------------------------------------------------------------*/
    private void buildMenus()
-   {         
+   {
       mbar = new JMenuBar();
 
       /*-----------*/
@@ -337,8 +341,8 @@ public class jMainResourceView extends JFrame implements Observer
       setJMenuBar(mbar);
 
       /* Setup menu event listeners local to this view --------------------*/
-      locDocMenuListener = new DocMenuItemController();
-      locMenuListener    = new MenuItemController();
+      locDocListener  = new DocController();
+      locMenuListener = new MenuItemController();
 
       quitItem.addActionListener(locMenuListener);
 
@@ -447,16 +451,17 @@ public class jMainResourceView extends JFrame implements Observer
       String currentDoc = docmgr.getCurrentName();
       JMenuItem docItem;
       docMenu.removeAll();
-      locDocMenuListener = new DocMenuItemController();
+      if(locDocListener == null) locDocListener = new DocController();
 
       for(int i = 0; i < docs.length; i++)
       {
          if(docs[i].compareTo(currentDoc) == 0)
+         {
+            currentDocIndex = i;
             docItem = new JCheckBoxMenuItem(docs[i], true);
-         else
-            docItem = new JMenuItem(docs[i]);
+         } else docItem = new JMenuItem(docs[i]);
 
-         docItem.addActionListener(locDocMenuListener);
+         docItem.addActionListener(locDocListener);
          docMenu.add(docItem);
       }
    }
@@ -498,8 +503,7 @@ public class jMainResourceView extends JFrame implements Observer
       while( typeKeys.hasMoreElements() )
       {
          s = (String)typeKeys.nextElement();
-         if(handlers.canHandleType(s))
-            tmpModel.addInOrder(s);
+         if(handlers.canHandleType(s)) tmpModel.addInOrder(s);
       }
 
       myTypeList.setModel(tmpModel);
@@ -543,9 +547,8 @@ public class jMainResourceView extends JFrame implements Observer
             currentHandler =
                (MacResourceHandler)handlers.
                getHandler(currentType).newInstance();
-         } catch (Exception e) {
-            System.err.println(e);
-         }
+         } catch (Exception e) { System.err.println(e); }
+
          handlerLab.setText("" + currentResMod.getCountOfType(currentType) +
                             " resources of type \'" + currentType +
                             "\' handled by " +
@@ -576,9 +579,9 @@ public class jMainResourceView extends JFrame implements Observer
    {
       JOptionPane jop = new JOptionPane();
       String message[] = {
-         "ResCaf\u00e9 v1.3",
+         "ResCaf\u00e9 v1.4",
          "by G. Brannon Smith <gbsmith@mail.com>",
-         "Wed, 27 Nov 2000",
+         "Sun, 10 Dec 2000",
          " ",
          "A Java app for viewing and extracting data",
          "from Mac Resource Forks on other platforms -",
@@ -651,7 +654,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Local because it only affects aspects of the local display:
       // *** HOWEVER, perhaps quit portion should not be local
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.16 2000/12/11 05:58:40 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent event)
@@ -691,17 +694,54 @@ public class jMainResourceView extends JFrame implements Observer
    }
 
    /*====================================================================*/
-   class DocMenuItemController implements ActionListener
+   class DocController extends KeyAdapter implements ActionListener
    {
       // Local because it only affects what ResourceModel is VIEWED
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.16 2000/12/11 05:58:40 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent ae)
       {
          String command = ae.getActionCommand();
          docmgr.choose(command);
+      }
+
+      /*--------------------------------------------------------------------*/
+      public void keyTyped(KeyEvent ae)
+      {
+         char whichKey;
+
+         if(ae.isControlDown())
+         {
+            whichKey = ae.getKeyChar();
+            if(whichKey == '+') { ae.consume(); selectNextDoc(); }
+            if(whichKey == '-') { ae.consume(); selectPrevDoc(); }
+         }
+      }
+
+      /*--------------------------------------------------------------------*/
+      void selectNextDoc()
+      {
+         int numdocs, nextdoc;
+
+         numdocs = docMenu.getItemCount();
+         if(numdocs < 2) return;
+
+         nextdoc = (currentDocIndex + 1)%numdocs;
+         docMenu.getItem(nextdoc).doClick();
+      }
+
+      /*--------------------------------------------------------------------*/
+      void selectPrevDoc()
+      {
+         int numdocs, prevdoc;
+
+         numdocs = docMenu.getItemCount();
+         if(numdocs < 2) return;
+
+         prevdoc = (currentDocIndex - 1 + numdocs)%numdocs;
+         docMenu.getItem(prevdoc).doClick();
       }
    }
 
@@ -712,7 +752,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Detects clicks in the Type List and displays resources of that type
 
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.16 2000/12/11 05:58:40 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void valueChanged(ListSelectionEvent lse)
@@ -731,7 +771,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // *** Perhaps this shouldn't be local after all
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.15 2000/11/27 19:50:05 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.16 2000/12/11 05:58:40 gbsmith Exp $";
       public void windowClosing(WindowEvent event) { doQuit(); }
    }
 }
