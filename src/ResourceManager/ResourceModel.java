@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/ResourceManager/RCS/ResourceModel.java,v 1.6 1999/10/21 23:50:22 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/ResourceManager/RCS/ResourceModel.java,v 1.7 2000/05/24 02:51:56 gbsmith Exp $ */
 
 package ResourceManager;
 
@@ -13,6 +13,10 @@ import java.util.Observable;
 /*=======================================================================*/
 /*
  * $Log: ResourceModel.java,v $
+ * Revision 1.7  2000/05/24 02:51:56  gbsmith
+ * Removed superfluous void return type from constructors
+ * after compiler warnings.
+ *
  * Revision 1.6  1999/10/21 23:50:22  gbsmith
  * Added Copyright notice.
  *
@@ -61,13 +65,13 @@ public class ResourceModel extends Observable
    Hashtable theTypes;
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ResourceModel.java,v 1.6 1999/10/21 23:50:22 gbsmith Exp $";
+   static final String rcsid = "$Id: ResourceModel.java,v 1.7 2000/05/24 02:51:56 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    /**
     * Sets up a new ResourceModel
     */
-   public void ResourceModel()
+   public ResourceModel()
    {
       init();
    }
@@ -77,7 +81,7 @@ public class ResourceModel extends Observable
     * Sets up a new ResourceModel to load from the given filename
     * @param inName the new name of the file
     */
-   public void ResourceModel(String inName)
+   public ResourceModel(String inName)
    {
       init(inName);
    }

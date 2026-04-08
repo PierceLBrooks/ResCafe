@@ -1,10 +1,14 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/MacStandard256Palette.java,v 1.5 1999/10/21 23:06:52 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/MacStandard256Palette.java,v 1.6 1999/12/19 01:29:21 gbsmith Exp $ */
 
 import java.awt.image.IndexColorModel;
 
 /*=======================================================================*/
 /*
  * $Log: MacStandard256Palette.java,v $
+ * Revision 1.6  1999/12/19 01:29:21  gbsmith
+ * Added an additional transparent entry in hopes of applying
+ * the mask bitmap to make XPMs with transparency.
+ *
  * Revision 1.5  1999/10/21 23:06:52  gbsmith
  * Added Copyright notice.
  *
@@ -31,7 +35,7 @@ import java.awt.image.IndexColorModel;
 public class MacStandard256Palette
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: MacStandard256Palette.java,v 1.5 1999/10/21 23:06:52 gbsmith Exp $";
+   static final String rcsid = "$Id: MacStandard256Palette.java,v 1.6 1999/12/19 01:29:21 gbsmith Exp $";
 
    /*--- Data -----------------------------------------------------------*/
    static private final byte reds[] =
@@ -50,7 +54,8 @@ public class MacStandard256Palette
        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
        0,  0,  0,  0,  0,  0,  0,-18,-35,-69,-86,-120,119, 85, 68, 34,
       17,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-       0,  0,  0,  0,  0,-18,-35,-69,-86,-120,119, 85, 68, 34, 17,  0 };
+       0,  0,  0,  0,  0,-18,-35,-69,-86,-120,119, 85, 68, 34, 17,  0,
+     0 };
 
    static private final byte greens[] =
    { -1,-1,-1,-1,-1,-1,-52,-52,-52,-52,-52,-52,-103,-103,-103,-103,
@@ -68,7 +73,8 @@ public class MacStandard256Palette
      -103,-103,-103,-103,-103,-103,102,102,102,102,102,102, 51, 51, 51, 51,
       51, 51,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
        0,-18,-35,-69,-86,-120,119, 85, 68, 34, 17,  0,  0,  0,  0,  0,
-       0,  0,  0,  0,  0,-18,-35,-69,-86,-120,119, 85, 68, 34, 17,  0 };
+       0,  0,  0,  0,  0,-18,-35,-69,-86,-120,119, 85, 68, 34, 17,  0,
+     0 };
 
    static private final byte blues[] =
    { -1,-52,-103,102, 51,  0,-1,-52,-103,102, 51,  0,-1,-52,-103,102,
@@ -86,17 +92,19 @@ public class MacStandard256Palette
      -1,-52,-103,102, 51,  0,-1,-52,-103,102, 51,  0,-1,-52,-103,102,
       51,  0,-1,-52,-103,102, 51,  0,  0,  0,  0,  0,  0,  0,  0,  0,
        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,-18,-35,-69,-86,-120,
-     119, 85, 68, 34, 17,-18,-35,-69,-86,-120,119, 85, 68, 34, 17,  0 };
+     119, 85, 68, 34, 17,-18,-35,-69,-86,-120,119, 85, 68, 34, 17,  0,
+     0 };
 
+   static private final int alpha = 256;
 
    /*--- Methods --------------------------------------------------------*/
-   public static byte[] getReds()   { return reds; }
+   public static byte[] getReds()   { return reds;   }
    public static byte[] getGreens() { return greens; }
-   public static byte[] getBlues()  { return blues; } 
+   public static byte[] getBlues()  { return blues;  }
 
    public static IndexColorModel getColorModel()
    {
-      return new IndexColorModel(8, 256, reds, greens, blues );
+      return new IndexColorModel(8, 257, reds, greens, blues, alpha );
    }
 }
 

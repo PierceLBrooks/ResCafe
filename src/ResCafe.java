@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/ResCafe.java,v 1.6 1999/10/28 04:01:33 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/ResCafe.java,v 1.7 2000/05/24 06:55:30 gbsmith Exp $ */
 
 import java.awt.Dialog;
 import java.awt.Image;
@@ -13,6 +13,9 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: ResCafe.java,v $
+ * Revision 1.7  2000/05/24 06:55:30  gbsmith
+ * New handlerView feature introduced.
+ *
  * Revision 1.6  1999/10/28 04:01:33  gbsmith
  * Changed to support DocumentManager vs. one ResourceModel.
  *
@@ -43,12 +46,13 @@ public class ResCafe
 {
    /*--- Data -----------------------------------------------------------*/
    jMainResourceView myview;
+   jHandlerView      hview;
    DocumentManager   mydocmgr;
    HandlerTable      myhandlers;
    FileController    myfctrl;
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ResCafe.java,v 1.6 1999/10/28 04:01:33 gbsmith Exp $";
+   static final String rcsid = "$Id: ResCafe.java,v 1.7 2000/05/24 06:55:30 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public static void main( String args[] )
@@ -67,6 +71,11 @@ public class ResCafe
       myhandlers = new HandlerTable();
 
       // Load handlers in own thread
+      hview = jHandlerView.getInstance();
+      hview.setHandlerModel(myhandlers);
+      hview.setSize( 400, 300 );
+      hview.show();
+
       Thread handlerThread = new Thread(myhandlers);
       handlerThread.start();
 

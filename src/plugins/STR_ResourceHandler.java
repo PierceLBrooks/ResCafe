@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/STR_ResourceHandler.java,v 1.3 1999/10/21 21:50:28 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/STR_ResourceHandler.java,v 1.5 2000/05/24 06:27:07 gbsmith Exp $ */
 
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -17,8 +17,21 @@ import java.io.PrintWriter;
 import ResourceManager.*;
 
 /*=======================================================================*/
+/* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
+/*=======================================================================*/
+
+/*=======================================================================*/
 /*
  * $Log: STR_ResourceHandler.java,v $
+ * Revision 1.5  2000/05/24 06:27:07  gbsmith
+ * Now subclasses DefaultResourceHandler to take advantage of the
+ * column sorting and sizing capabilities. Also made export
+ * filename construction changes to prevent file separator chars
+ * from causing save errors.
+ *
+ * Revision 1.4  2000/05/24 03:55:25  gbsmith
+ * Changed file/path name char replacement sequence
+ *
  * Revision 1.3  1999/10/21 21:50:28  gbsmith
  * Added Copyright notice. Made class imports more explicit.
  *
@@ -31,20 +44,14 @@ import ResourceManager.*;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
-/*=======================================================================*/
-
-/*=======================================================================*/
-public class STR_ResourceHandler extends MacResourceHandler
+public class STR_ResourceHandler extends DefaultResourceHandler
 {
    /*--- Data -----------------------------------------------------------*/
    String mystrings[];
-   JList resList;
-   JTable resTable;
    private static final String[] columnNames = { "ResID", "Name", "Size", "Text" };
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: STR_ResourceHandler.java,v 1.3 1999/10/21 21:50:28 gbsmith Exp $";
+   static final String rcsid = "$Id: STR_ResourceHandler.java,v 1.5 2000/05/24 06:27:07 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public String[] getTypes()
@@ -90,6 +97,9 @@ public class STR_ResourceHandler extends MacResourceHandler
       resTable = new JTable(tmpModel);
       resTable.setRowHeight(18);
 
+      addDecorator();
+      optimizeColumnWidth();
+
       JScrollPane rtsp = new JScrollPane(resTable);
       add(rtsp, "Center");
    }
@@ -119,15 +129,15 @@ public class STR_ResourceHandler extends MacResourceHandler
          tmpfilename = new StringBuffer(savedir.getPath());
          tmpfilename.append( File.separator + myResArray[i].getID() );
          if(myResArray[i].getName() != null)
-            tmpfilename.append("_" + myResArray[i].getName());
+            tmpfilename.append("_" + myResArray[i].getName().
+                               replace(' ', '_').
+                               replace(File.separatorChar, '+'));
          tmpfilename.append(".txt");
-         filename = tmpfilename.toString().replace(' ', '_');
-         //System.out.println("\tSaving \'" + filename + "\'...");
+         filename = tmpfilename.toString();
 
          try
          {
             pw = new PrintWriter(new FileOutputStream(filename));
-            //System.out.println("mystrings[" + i + "] = " + mystrings[i]);
             pw.print(mystrings[i]);
             pw.close();
          } catch (Exception whatever) {

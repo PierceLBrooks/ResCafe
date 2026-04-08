@@ -1,10 +1,14 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/MacStandard16Palette.java,v 1.5 1999/10/21 23:05:40 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/MacStandard16Palette.java,v 1.6 1999/12/19 01:28:57 gbsmith Exp $ */
 
 import java.awt.image.IndexColorModel;
 
 /*=======================================================================*/
 /*
  * $Log: MacStandard16Palette.java,v $
+ * Revision 1.6  1999/12/19 01:28:57  gbsmith
+ * Added an additional transparent entry in hopes of applying
+ * the mask bitmap to make XPMs with transparency.
+ *
  * Revision 1.5  1999/10/21 23:05:40  gbsmith
  * Added Copyright notice.
  *
@@ -31,20 +35,25 @@ import java.awt.image.IndexColorModel;
 public class MacStandard16Palette
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: MacStandard16Palette.java,v 1.5 1999/10/21 23:05:40 gbsmith Exp $";
+   static final String rcsid = "$Id: MacStandard16Palette.java,v 1.6 1999/12/19 01:28:57 gbsmith Exp $";
 
    /*--- Data -----------------------------------------------------------*/
    static private final byte reds[] =
    {  -1,  -4,  -1,  -35,  -14,   70,   0,   2,
-      31,   0,  86, -112,  -64, -128,  64,   0 };
+      31,   0,  86, -112,  -64, -128,  64,   0,
+      0 };
 
    static private final byte greens[] =
    {  -1, -13, 100,    8,    8,    0,   0, -85,
-     -73, 100,  44,  113,  -64, -128,  64,   0 };
+     -73, 100,  44,  113,  -64, -128,  64,   0,
+       0 };
 
    static private final byte blues[] =
    {  -1,   5,   2,    6, -124,  -91, -44, -22,
-      20,  17,   5,   58,  -64, -128,  64,   0 };
+      20,  17,   5,   58,  -64, -128,  64,   0,
+       0 };
+
+   static private final int alpha = 16;
 
    /*--- Methods --------------------------------------------------------*/
    public static byte[] getReds()   { return reds; }
@@ -53,6 +62,6 @@ public class MacStandard16Palette
 
    public static IndexColorModel getColorModel()
    {
-      return new IndexColorModel(8, 16, reds, greens, blues );
+      return new IndexColorModel(8, 17, reds, greens, blues, alpha );
    }
 }

@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $ */
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,13 +10,22 @@ import java.io.IOException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Observable;
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /*=======================================================================*/
+/* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
+/*=======================================================================*/
+
+/*=======================================================================*/
 /*
  * $Log: HandlerTable.java,v $
+ * Revision 1.9  2000/05/24 06:50:29  gbsmith
+ * Made observable so it can notify Windows and stuff when it has
+ * been updated, such as with a rescan.
+ *
  * Revision 1.8  1999/10/27 07:15:38  gbsmith
  * Implemented Runnable interface so loading can be put in a thread.
  * Also synchronized build method so only one thread can change it.
@@ -47,21 +56,17 @@ import java.util.zip.ZipFile;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
-/*=======================================================================*/
-
-/*=======================================================================*/
-class HandlerTable implements Runnable
+class HandlerTable extends Observable implements Runnable
 {
    /*--- Data -----------------------------------------------------------*/
    private Hashtable handlerData;
    private Hashtable handlerTypeList;
    private Class masterClass;
    private String plugDirName = "plugins";
-   private boolean VERBOSE = true;
+   private boolean VERBOSE = true; //private boolean VERBOSE = false;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public HandlerTable()
@@ -83,16 +88,14 @@ class HandlerTable implements Runnable
    /*--------------------------------------------------------------------*/
    public void run()
    {
-      build();  
+      build();
    }
 
    /*--------------------------------------------------------------------*/
    synchronized void build()
    {
-      /* 
-         This seems like a lot to synchronize but we really only want
-         one thread messing with (esp. rebuilding) the table at a time
-       */
+      /* This seems like a lot to synchronize but we really only want
+         one thread messing with (esp. rebuilding) the table at a time */
       File pluginDir = new File( plugDirName );
       if(VERBOSE) System.out.println("");
       if(pluginDir.isDirectory()) processDirectory(pluginDir);
@@ -102,7 +105,16 @@ class HandlerTable implements Runnable
          System.exit(1);
       }
 
-      if(VERBOSE) listHandlersbyType();
+      setChanged();
+      notifyObservers();
+
+      //if(VERBOSE) listHandlersbyType();
+   }
+
+   /*--------------------------------------------------------------------*/
+   public int getTypeCount( )
+   {
+      return handlerData.size();
    }
 
    /*--------------------------------------------------------------------*/
@@ -184,16 +196,13 @@ class HandlerTable implements Runnable
                                      searchdir + "...");
       plugfiles = searchdir.list( new ClassFileFilter() );
 
-      if(plugfiles.length > 0)
-         System.out.println("found " + plugfiles.length);
-      else
-         System.out.println("none.");
+      if(VERBOSE)
+         if(plugfiles.length > 0) System.out.println("found " +
+                                                     plugfiles.length);
+         else                     System.out.println("none.");
 
       for(int i=0; i < plugfiles.length; i++)
       {
-         // if(VERBOSE) System.out.print("\tCLASS " + i + ") " +
-         //                             plugfiles[i] + ": ");
-
          // Chop out '.class' extension
          strippedClass = plugfiles[i].substring(0, plugfiles[i].length() - 6);
          try
@@ -357,10 +366,10 @@ class HandlerTable implements Runnable
                                      searchdir + "... ");
       plugdirs = searchdir.list( new DirFilter() );
 
-      if(plugdirs.length > 0)
-         System.out.println("found " + plugdirs.length);
-      else
-         System.out.println("none.");
+      if(VERBOSE)
+         if(plugdirs.length > 0) System.out.println("found " +
+                                                    plugdirs.length);
+         else                    System.out.println("none.");
 
       for(int i=0; i < plugdirs.length; i++)
       {
@@ -407,7 +416,7 @@ class HandlerTable implements Runnable
 class ClassFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -423,7 +432,7 @@ class ClassFileFilter implements FilenameFilter
 class DirFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -438,7 +447,7 @@ class DirFilter implements FilenameFilter
 class JarFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -461,7 +470,7 @@ class SubdirClassLoader extends ClassLoader
    File searchdir;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public SubdirClassLoader( File indir )

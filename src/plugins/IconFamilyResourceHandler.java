@@ -1,32 +1,57 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/IconFamilyResourceHandler.java,v 1.5 1999/10/19 06:00:46 gbsmith Exp $ */
-
-import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/src/plugins/RCS/IconFamilyResourceHandler.java,v 1.11 2000/05/24 07:57:27 gbsmith Exp $ */
 
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Image;
 
-import java.awt.image.IndexColorModel;
-import java.awt.image.MemoryImageSource;
-
 import java.io.File;
+import java.io.FileWriter;
 
 import ResourceManager.*;
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
+/* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
 /*=======================================================================*/
 
 /*=======================================================================*/
 /*
  * $Log: IconFamilyResourceHandler.java,v $
+ * Revision 1.11  2000/05/24 07:57:27  gbsmith
+ * Fixed the calls to XpmImage class methods to prevent empty XPMs from
+ * being written from null Images.
+ *
+ * Revision 1.10  2000/05/24 06:49:08  gbsmith
+ * Updated version number to 1.2
+ *
+ * Revision 1.9  2000/05/24 06:17:59  gbsmith
+ * Moved column width optimizer code and column sorting code up in
+ * the hierarchy so siblings could take advantage of it.
+ * Started using custom, homebrew XpmImage class instead of Jimi
+ * for saving Icons because it properly and easily handles masks.
+ * Also had to fiddle with the the icon naming code to handle
+ * errant file separator chars that were getting mixed in.
+ *
+ * Revision 1.8  1999/12/19 07:43:42  gbsmith
+ * Added sorting Decorator functionality for sorting on text columns
+ * with mouse clicks.
+ *
+ * Revision 1.7  1999/12/19 05:51:57  gbsmith
+ * Moved specific icon type processor methods into superclass
+ * (for use in sister classes)
+ *
+ * Revision 1.6  1999/12/19 04:54:20  gbsmith
+ * Fixed Mask image saving problem. Added code to automatically adjust columns
+ * to optimum width.
+ *
  * Revision 1.5  1999/10/19 06:00:46  gbsmith
  * Overrode 'about' method. Added copyright notice.
  *
@@ -51,31 +76,25 @@ import ResourceManager.*;
 public class IconFamilyResourceHandler extends GBS_ImageResourceHandler
 {
    /*--- Data -----------------------------------------------------------*/
-   IndexColorModel icm16, icm256;
+   //JList resList;
+   //SortDecorator decorator;
 
-   JList resList;
-   JTable resTable;
-   private static final String[] columnNames =
+   protected static final String[] columnNames =
    { "ResID", "Name", "Size",
-     "ICN#", "Imask", "icl4", "icl8", "ics#", "imask", "ics4", "ics8"};
+     "ICN#", "Imask", "icl4", "icl8", "ics#", "imask", "ics4", "ics8" };
 
    TableCellRenderer renderer = new IconRenderer();
 
-   Image ICNs[];
-   Image ICN_masks[];
-   Image icl4s[];
-   Image icl8s[];
-   Image icss[];
-   Image ics_masks[];
-   Image ics4s[];
-   Image ics8s[];
+   //    B&W     Masks        4-bit    8-bit
+   Image ICNs[], ICN_masks[], icl4s[], icl8s[];
+   Image icss[], ics_masks[], ics4s[], ics8s[];
 
    String icon_names[];
 
-   String mytypes[] = {"ICN#", "icl4", "icl8", "ics#", "ics4", "ics8"};
+   String mytypes[] = { "ICN#", "icl4", "icl8", "ics#", "ics4", "ics8" };
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: IconFamilyResourceHandler.java,v 1.5 1999/10/19 06:00:46 gbsmith Exp $";
+   static final String rcsid = "$Id: IconFamilyResourceHandler.java,v 1.11 2000/05/24 07:57:27 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public String[] getTypes()
@@ -104,16 +123,13 @@ public class IconFamilyResourceHandler extends GBS_ImageResourceHandler
       ICN_masks = new Image[myResArray.length];
       icl4s     = new Image[myResArray.length];
       icl8s     = new Image[myResArray.length];
+
       icss      = new Image[myResArray.length];
       ics_masks = new Image[myResArray.length];
       ics4s     = new Image[myResArray.length];
       ics8s     = new Image[myResArray.length];
 
       icon_names = new String[myResArray.length];
-
-      // Make the color models
-      icm16  = MacStandard16Palette.getColorModel();
-      icm256 = MacStandard256Palette.getColorModel();
 
       for( int i = 0; i < myResArray.length; i++)
       {
@@ -141,15 +157,12 @@ public class IconFamilyResourceHandler extends GBS_ImageResourceHandler
    {
       if(type.compareTo("ICN#") == 0)
       {
-         ICNs[index] = process_ICN( rawData );
+         ICNs[index]      = process_ICN( rawData );
          ICN_masks[index] = process_ICN_mask( rawData );
       }
 
-      if(type.compareTo("icl4") == 0)
-         icl4s[index] = process_icl4( rawData );
-
-      if(type.compareTo("icl8") == 0)
-         icl8s[index] = process_icl8( rawData );
+      if(type.compareTo("icl4") == 0) icl4s[index] = process_icl4( rawData );
+      if(type.compareTo("icl8") == 0) icl8s[index] = process_icl8( rawData );
 
       if(type.compareTo("ics#") == 0)
       {
@@ -157,141 +170,8 @@ public class IconFamilyResourceHandler extends GBS_ImageResourceHandler
          ics_masks[index] = process_ics_mask( rawData );
       }
 
-      if(type.compareTo("ics4") == 0)
-         ics4s[index] = process_ics4( rawData );
-
-      if(type.compareTo("ics8") == 0)
-         ics8s[index] = process_ics8( rawData );
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_ICN( byte rawData[] )
-   {
-      MemoryImageSource mis;
-      byte iconData[];
-
-      int i, j, b;
-
-      // Grab icon data
-      iconData = new byte[1024];
-      for ( j = 0; j < 128; j++)
-         for ( b = 0; b < 8; b++)
-            iconData[j*8+b] = (byte)((rawData[j] &
-                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
-
-      mis = new MemoryImageSource(32, 32, icm16, iconData, 0, 32);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_ICN_mask( byte rawData[] )
-   {
-      MemoryImageSource mis;
-      byte maskData[];
-      int i, j, b;
-
-      // Grab mask data
-      maskData = new byte[1024];
-      for ( j = 0; j < 128; j++)
-         for ( b = 0; b < 8; b++)
-            maskData[j*8+b] = (byte)((rawData[j + 128] &
-                                      (0x80 >>> b)) > 0? 0xFF: 0x00);
-
-      mis = new MemoryImageSource(32, 32, icm16, maskData, 0, 32);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_icl4( byte rawData[] )
-   {
-      MemoryImageSource mis;
-      byte iconData[];
-
-      iconData = new byte[1024];
-      for (int j = 0; j < 512; j++)
-      {
-         // Grab high 4 bytes
-         iconData[j*2]   = (byte)((rawData[j] >> 4) & 0x0F);
-
-         // Grab low 4 bytes
-         iconData[j*2+1] = (byte)(rawData[j] & 0x0F);
-      }
-
-      mis = new MemoryImageSource(32, 32, icm16, iconData, 0, 32);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_icl8( byte rawData[] )
-   {
-      MemoryImageSource mis;
-
-      mis = new MemoryImageSource(32, 32, icm256, rawData, 0, 32);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_ics( byte rawData[] )
-   {
-      int i, j, b;
-      MemoryImageSource mis;
-      byte iconData[];
-
-      // Grab icon data
-      iconData = new byte[256];
-      for ( j = 0; j < 32; j++)
-         for ( b = 0; b < 8; b++)
-            iconData[j*8+b] = (byte)((rawData[j] &
-                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
-
-      mis = new MemoryImageSource(16, 16, icm16, iconData, 0, 16);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_ics_mask( byte rawData[] )
-   {
-      int i, j, b;
-      MemoryImageSource mis;
-      byte maskData[];
-
-      // Grab mask data
-      maskData = new byte[256];
-      for ( j = 0; j < 32; j++)
-         for ( b = 0; b < 8; b++)
-            maskData[j*8+b] = (byte)((rawData[j+32] &
-                                      (0x80 >>> b)) > 0? 0x0F: 0x00);
-
-      mis = new MemoryImageSource(16, 16, icm16, maskData, 0, 16);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_ics4( byte rawData[] )
-   {
-      MemoryImageSource mis;
-      byte iconData[];
-
-      iconData = new byte[256];
-      for (int j = 0; j < 128; j++)
-      {
-         // Grab high 4 bytes
-         iconData[j*2]   = (byte)((rawData[j] >> 4) & 0x0F);
-
-         // Grab low 4 bytes
-         iconData[j*2+1] = (byte)(rawData[j] & 0x0F);
-      }
-
-      mis = new MemoryImageSource(16, 16, icm16, iconData, 0, 16);
-      return createImage(mis);
-   }
-
-   /*--------------------------------------------------------------------*/
-   private Image process_ics8( byte rawData[] )
-   {
-      MemoryImageSource mis =
-         new MemoryImageSource(16, 16, icm256, rawData, 0, 16);
-      return createImage(mis);
+      if(type.compareTo("ics4") == 0) ics4s[index] = process_ics4( rawData );
+      if(type.compareTo("ics8") == 0) ics8s[index] = process_ics8( rawData );
    }
 
    /*--------------------------------------------------------------------*/
@@ -352,23 +232,34 @@ public class IconFamilyResourceHandler extends GBS_ImageResourceHandler
       resTable = new JTable(tmpModel);
       resTable.setRowHeight(36);
 
+      // IMPORTANT! Add decorator first THEN set Icon Renderers afterwards.
+      //            This prevents the renders from being trampled by the
+      //            Decorator model.
+      //
+      addDecorator();
+
+      // Set renderered so Icons will actually be drawn in the table
       for(int cn = 3; cn < columnNames.length; cn++)
       {
          tc = resTable.getColumn(columnNames[cn]);
          tc.setCellRenderer(renderer);
       }
 
+      optimizeColumnWidth();
+
       JScrollPane rtsp = new JScrollPane(resTable);
       setLayout( new BorderLayout() );
       add(rtsp, "Center");
    }
+
+
 
    /*--------------------------------------------------------------------*/
    public String[] about( )
    {
       String[] pluginfo =
       { "IconFamilyResourceHandler",
-        "v1.0",
+        "v1.2",
         "by G. Brannon Smith",
         " ",
         "This plugin handles types that are part of the standard",
@@ -384,9 +275,14 @@ public class IconFamilyResourceHandler extends GBS_ImageResourceHandler
    public void save( File savedir )
    {
       StringBuffer tmpfilename;
-      String filename;
-      String saveType;
-      Image imgToSave[];
+      String filename, imgname, saveType;
+
+      File outfile;
+      FileWriter fw;
+
+      XpmImage xpmout;
+
+      Image imgToSave[],  maskToSave[];
 
       if(resData == null)
       {
@@ -397,58 +293,66 @@ public class IconFamilyResourceHandler extends GBS_ImageResourceHandler
       Resource myResArray[] = resData.getResArray();
       saveType = resData.getID();
 
-      if(saveType.compareTo("ICN#") == 0) imgToSave = ICNs;
-      else if(saveType.compareTo("icl4") == 0) imgToSave = icl4s;
-      else if(saveType.compareTo("icl8") == 0) imgToSave = icl8s;
-      else if(saveType.compareTo("ics#") == 0) imgToSave = icss;
-      else if(saveType.compareTo("ics4") == 0) imgToSave = ics4s;
-      else if(saveType.compareTo("ics8") == 0) imgToSave = ics8s;
-      else return;
+      if( saveType.compareTo("ICN#") == 0)
+      {
+         imgToSave  = ICNs;
+         maskToSave = ICN_masks;
+      } else if( saveType.compareTo("icl4") == 0 ) {
+         imgToSave  = icl4s;
+         maskToSave = ICN_masks;
+      } else if( saveType.compareTo("icl8") == 0 ) {
+         imgToSave  = icl8s;
+         maskToSave = ICN_masks;
+      } else if( saveType.compareTo("ics#") == 0 ) {
+         imgToSave  = icss;
+         maskToSave = ics_masks;
+      } else if( saveType.compareTo("ics4") == 0 ) {
+         imgToSave  = ics4s;
+         maskToSave = ics_masks;
+      } else if( saveType.compareTo("ics8") == 0 ) {
+         imgToSave  = ics8s;
+         maskToSave = ics_masks;
+      } else return;
 
       System.out.println("Saving resources of type \'" + saveType + "\'");
       for(int i=0; i < myResArray.length; i++)
       {
-         tmpfilename = new StringBuffer(savedir.getPath());
-         tmpfilename.append( File.separator + myResArray[i].getID() );
-         if(icon_names[i] != null)
+         tmpfilename = new StringBuffer("" + myResArray[i].getID() );
+
+         // Try to find resource name
+         if(myResArray[i].getName() != null)
+         {
+            imgname = myResArray[i].getName();
             tmpfilename.append("_" + myResArray[i].getName());
+         } else if(icon_names[i] != null) {
+            imgname = icon_names[i];
+            tmpfilename.append("_" + icon_names[i]);
+         } else
+            imgname = "icon" + myResArray[i].getID();
          tmpfilename.append(".xpm");
-         filename = tmpfilename.toString().replace(' ', '_');
+
+         filename = tmpfilename.toString().
+                replace(' ', '_').
+                replace(File.separatorChar, '+');
+         imgname = imgname.replace(' ', '_');
 
          try
          {
-            Jimi.putImage(imgToSave[i], filename);
+            outfile = new File(savedir, filename);
+            fw = new FileWriter(outfile);
+            if(imgToSave[i] == null)
+               System.err.println("Image " + imgname + " seems to be null!");
+            else
+            {
+               if(maskToSave[i] == null)
+                  xpmout = new XpmImage(imgname, this, imgToSave[i]);
+               else
+                  xpmout = new XpmImage(imgname, this, imgToSave[i], maskToSave[i]);
+               xpmout.write(fw);
+            }
          } catch (Exception whatever) {
             System.err.println("ERROR: While saving, got exception " + whatever );
          }
       }
-
-      // Do masks if there are any for given type...
-      if(saveType.compareTo("ICN#") == 0 ||
-         saveType.compareTo("ics#") == 0)
-      {
-         if(saveType.compareTo("ICN#") == 0) imgToSave = ICN_masks;
-         if(saveType.compareTo("ics#") == 0) imgToSave = ics_masks;
-
-         System.out.println("Saving masks of type \'" + saveType + "\'");
-         for(int i=0; i < myResArray.length; i++)
-         {
-            tmpfilename = new StringBuffer(savedir.getPath());
-            tmpfilename.append( File.separator + myResArray[i].getID() );
-            if(icon_names[i] != null)
-               tmpfilename.append("_" + myResArray[i].getName());
-            tmpfilename.append("_mask");
-            tmpfilename.append(".xpm");
-            filename = tmpfilename.toString().replace(' ', '_');
-
-            try
-            {
-               Jimi.putImage(imgToSave[i], filename);
-            } catch (Exception whatever) {
-               System.err.println("ERROR: While saving, got exception " + whatever );
-            }
-         }
-      }
-      //---------------------------------------------------------------------
    }
 }

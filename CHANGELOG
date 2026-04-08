@@ -1,6 +1,16 @@
 ResCafe Change Log
 ==================
 
+1.1 -> 1.2
+---------------
+Still more fun changes. Added support for mouse click sorting of
+plugin display columns as well as optimal adjustment of the
+column widths. Rearranged the plugin class hierarchy so almost
+all plugins can take advantage of it. Also added a custom
+XpmImage class that supports mask so icons will be properly
+exported to XPM files. Added the beginnings of GUI windows to
+track the loaded plugins and what they can handle.
+
 1.0.1 -> 1.1
 ---------------
 More radical changes. Added support for multiple open documents using the

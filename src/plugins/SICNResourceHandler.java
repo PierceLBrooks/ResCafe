@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/SICNResourceHandler.java,v 1.3 1999/10/21 21:48:10 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/SICNResourceHandler.java,v 1.4 1999/12/19 05:34:51 gbsmith Exp $ */
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -10,6 +10,9 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: SICNResourceHandler.java,v $
+ * Revision 1.4  1999/12/19 05:34:51  gbsmith
+ * Now uses inherited process_ics method for grabbing
+ *
  * Revision 1.3  1999/10/21 21:48:10  gbsmith
  * Added Copyright notice. Changed color model call.
  *
@@ -32,12 +35,11 @@ public class SICNResourceHandler extends GBS_ImageResourceHandler
    JList resList;
    JTable resTable;
    private static final String[] columnNames = { "ResID", "Name", "Size", "Icon" };
-   IndexColorModel icm;
 
    TableCellRenderer renderer = new IconRenderer();
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: SICNResourceHandler.java,v 1.3 1999/10/21 21:48:10 gbsmith Exp $";
+   static final String rcsid = "$Id: SICNResourceHandler.java,v 1.4 1999/12/19 05:34:51 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public String[] getTypes()
@@ -48,31 +50,13 @@ public class SICNResourceHandler extends GBS_ImageResourceHandler
    /*--------------------------------------------------------------------*/
    public void init( )
    {
-      int i, j, b;
-      MemoryImageSource mis;
-      byte rawData[];
-      byte iconData[];
+      int i;
 
       Resource myResArray[] = resData.getResArray();
 
-      icm = MacStandard16Palette.getColorModel();
-
       myimages = new Image[myResArray.length];
-
       for( i = 0; i < myResArray.length; i++)
-      {
-         rawData = myResArray[i].getData();
-
-         // Grab icon data
-         iconData = new byte[256];
-         for ( j = 0; j < 32; j++)
-            for ( b = 0; b < 8; b++)
-               iconData[j*8+b] = (byte)((rawData[j] &
-                                        (0x80 >>> b)) > 0? 0x0F: 0x00);
-
-         mis = new MemoryImageSource(16, 16, icm, iconData, 0, 16);
-         myimages[i] = createImage(mis);
-      }
+         myimages[i] =  process_ics( myResArray[i].getData() );
    }
 
    /*--------------------------------------------------------------------*/

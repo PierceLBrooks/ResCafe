@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/IconRenderer.java,v 1.6 1999/10/21 21:37:20 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/IconRenderer.java,v 1.6 1999/10/21 21:37:20 gbsmith Exp $ */
 
 import java.awt.Component;
 import java.awt.Image;

@@ -1,14 +1,15 @@
 .SUFFIXES: .class .java
 
 
-JAVAC = javac
+JAVAC = jikes
+
+AUX=RGBColorNames.class XpmImage.class GBS_ImageResourceHandler.class
 
 PLUGINS=BNDLResourceHandler.class \
 	CURSResourceHandler \
 	FREFResourceHandler.class \
-	ICN_maskResourceHandler \
-	ICONResourceHandler \
 	IconFamilyResourceHandler \
+	ICONResourceHandler \
 	MENUResourceHandler \
 	PAT_ResourceHandler \
 	SICNResourceHandler \
@@ -16,16 +17,21 @@ PLUGINS=BNDLResourceHandler.class \
 	acurResourceHandler.class \
 	cicnResourceHandler \
 	clutResourceHandler.class \
-	icl4ResourceHandler.class \
-	icl8ResourceHandler.class \
-	ics4ResourceHandler.class \
-	ics8ResourceHandler.class \
-	ics_maskResourceHandler.class \
+	icnsResourceHandler.class \
 	plttResourceHandler \
         versResourceHandler.class
 
+#	icl4ResourceHandler.class \
+#	icl8ResourceHandler.class \
+#	ics4ResourceHandler.class \
+#	ics8ResourceHandler.class \
+#	ics_maskResourceHandler.class \
+#	ICN_maskResourceHandler \
+
 #--------------------------------------------------------------------------
-all: plugins
+all: aux  plugins
+
+aux: ${AUX}
 
 plugins: ${PLUGINS}
 
@@ -35,7 +41,9 @@ ICN_maskResourceHandler: IconRenderer.class ICN_maskResourceHandler.class
 
 ICONResourceHandler: IconRenderer.class ICONResourceHandler.class
 
-IconFamilyResourceHandler: IconRenderer.class GBS_ImageResourceHandler.class IconFamilyResourceHandler.class
+IconFamilyResourceHandler: RGBColorNames.class XpmImage.class \
+	IconRenderer.class GBS_ImageResourceHandler.class \
+	IconFamilyResourceHandler.class
 
 MENUResourceHandler: MENURecord.class MENUResourceHandler.class 
 

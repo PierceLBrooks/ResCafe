@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/ICONResourceHandler.java,v 1.4 1999/10/21 21:28:35 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/ICONResourceHandler.java,v 1.5 2000/05/24 07:28:50 gbsmith Exp $ */
 
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -18,6 +18,10 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: ICONResourceHandler.java,v $
+ * Revision 1.5  2000/05/24 07:28:50  gbsmith
+ * Added calls to 'addDecorator'and 'optimizeColumnWidth' to use
+ * that functionality.
+ *
  * Revision 1.4  1999/10/21 21:28:35  gbsmith
  * Changed color model call.
  *
@@ -33,21 +37,19 @@ import ResourceManager.*;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
+/* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
 /*=======================================================================*/
 
 /*=======================================================================*/
 public class ICONResourceHandler extends GBS_ImageResourceHandler
 {
    /*--- Data -----------------------------------------------------------*/
-   JList resList;
-   JTable resTable;
    private static final String[] columnNames = { "ResID", "Name", "Size", "Image"};
    IndexColorModel icm;
    TableCellRenderer renderer = new IconRenderer();
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ICONResourceHandler.java,v 1.4 1999/10/21 21:28:35 gbsmith Exp $";
+   static final String rcsid = "$Id: ICONResourceHandler.java,v 1.5 2000/05/24 07:28:50 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public String[] getTypes()
@@ -106,8 +108,13 @@ public class ICONResourceHandler extends GBS_ImageResourceHandler
 
       resTable = new JTable(tmpModel);
       resTable.setRowHeight(36);
+
+      addDecorator();
+
       tc = resTable.getColumn("Image");
       tc.setCellRenderer(renderer);
+
+      optimizeColumnWidth();
 
       JScrollPane rtsp = new JScrollPane(resTable);
       add(rtsp, "Center");

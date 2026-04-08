@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_devel/src/RCS/jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $ */
 
 import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
 
@@ -45,6 +45,12 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: jMainResourceView.java,v $
+ * Revision 1.13  2000/05/24 06:54:46  gbsmith
+ * Added the handlerView functionality to allow a GUI component to
+ * display details about the loaded handler plugins rather than
+ * stdout. Still in VERY EARLY stage.
+ * Updated version to 1.2
+ *
  * Revision 1.12  1999/10/28 20:30:28  gbsmith
  * Changed version number to 1.1
  *
@@ -126,6 +132,8 @@ public class jMainResourceView extends JFrame implements Observer
    MacResourceHandler currentHandler;
    String currentType;
 
+   jHandlerView hview = null;
+
    /*------ Models --------------------------------------------------------*/
    ResourceModel currentResMod;
    DocumentManager docmgr;
@@ -140,12 +148,12 @@ public class jMainResourceView extends JFrame implements Observer
    DocMenuItemController locDocMenuListener;
    TypeListController locListListener;
 
-   /*------ Misc ----------------------------------------------------------*/   
-   Thread iconThread, handlerThread; // for loading the icons, handlers 
+   /*------ Misc ----------------------------------------------------------*/
+   Thread iconThread, handlerThread; // for loading the icons, handlers
 
    /*------ RCS -----------------------------------------------------------*/
    static final String rcsid =
-   "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
+   "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
 
    /*--- Methods ----------------------------------------------------------*/
    public jMainResourceView(String frameTitle)
@@ -219,7 +227,7 @@ public class jMainResourceView extends JFrame implements Observer
       /*-------------------------------------------------------------------*/
       // Will dynamically
       // list open docs here
-      // 
+      //
 
       /*-------------------------------------------------------------------*/
       helpMenu = new JMenu("Help", true);
@@ -370,7 +378,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       ResourceModel tmpResMod = docmgr.getCurrent();
       if(tmpResMod == currentResMod) return; // No real change
-      
+
       currentResMod = tmpResMod;
 
       resetView();
@@ -382,7 +390,7 @@ public class jMainResourceView extends JFrame implements Observer
       } catch (InterruptedException intex) {
          System.err.println("ERROR loading icons: " + intex);
       }
-      
+
       rebuildDocMenu();
 
       if(currentResMod != null) showAllTypes();
@@ -404,8 +412,8 @@ public class jMainResourceView extends JFrame implements Observer
 
       repaint();
    }
-   
-         
+
+
    /*--------------------------------------------------------------------*/
    void rebuildDocMenu()
    {
@@ -543,12 +551,13 @@ public class jMainResourceView extends JFrame implements Observer
    {
       JOptionPane jop = new JOptionPane();
       String message[] = {
-         "ResCafé v1.1",
-         "by G. Brannon Smith <brannonsmith@yahoo.com>",
+         "ResCafé v1.2",
+         "by G. Brannon Smith <gbsmith@mail.com>",
+         "Wed, 24 May 2000",
          " ",
-         "A Java app for rendering and extracting data",
+         "A Java app for viewing and extracting data",
          "from Mac Resource Forks on other platforms -",
-         "mainly Linux"
+         "principally Linux"
       };
 
       jop.showMessageDialog(
@@ -617,7 +626,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Local because it only affects aspects of the local display:
       // *** HOWEVER, perhaps quit portion should not be local
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent event)
@@ -628,19 +637,27 @@ public class jMainResourceView extends JFrame implements Observer
          {
             if(typeItem.getText().compareTo("Show All Types") == 0)
                showAllTypes();
-            else 
-               showHandledTypes();
-         } 
+            else showHandledTypes();
+         }
 
-         else if(item == rescanItem)
-         {
+         else if(item == rescanItem) // Should probably move this out to
+         {                           // an outside controller
             handlerThread = new Thread(handlers);
             handlerThread.start();
-         }        
+         }
 
          // Currently only console versions - not windows
-         else if(item == listHandlerItem) handlers.listHandlersbyType();
-         else if(item == listTypeItem)    handlers.listTypesbyHandler();
+         else if(item == listHandlerItem)
+         {
+            if(hview == null) hview = jHandlerView.getInstance();
+            hview.show();
+         }
+
+         else if(item == listTypeItem)
+         {
+            if(hview == null) hview = jHandlerView.getInstance();
+            hview.show();
+         }
 
          else if(item == aboutAppItem)    aboutResCafe();
          else if(item == aboutPlugItem)   aboutCurrentPlugin();
@@ -653,7 +670,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // Local because it only affects what ResourceModel is VIEWED
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent ae)
@@ -670,7 +687,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Detects clicks in the Type List and displays resources of that type
 
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void valueChanged(ListSelectionEvent lse)
@@ -689,7 +706,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // *** Perhaps this shouldn't be local after all
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void windowClosing(WindowEvent event)

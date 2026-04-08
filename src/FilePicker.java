@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/FilePicker.java,v 1.4 1999/10/28 04:03:51 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/FilePicker.java,v 1.4 1999/10/28 04:03:51 gbsmith Exp $ */
 
 import java.io.File;
 

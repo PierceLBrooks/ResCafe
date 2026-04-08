@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/MacResourceHandler.java,v 1.5 1999/10/21 23:01:38 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/MacResourceHandler.java,v 1.6 2000/05/24 06:23:46 gbsmith Exp $ */
 
 import javax.swing.JPanel;
 
@@ -10,6 +10,11 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: MacResourceHandler.java,v $
+ * Revision 1.6  2000/05/24 06:23:46  gbsmith
+ * Changed up the save method to take care of errant file separator
+ * chars that could get inserted into the save location form the
+ * resource name, causing file writing errors.
+ *
  * Revision 1.5  1999/10/21 23:01:38  gbsmith
  * Added explicit JPanel class import.
  *
@@ -47,7 +52,7 @@ public abstract class MacResourceHandler extends JPanel
    protected ResourceType  resData; // classes can access
 
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: MacResourceHandler.java,v 1.5 1999/10/21 23:01:38 gbsmith Exp $";
+   static final String rcsid = "$Id: MacResourceHandler.java,v 1.6 2000/05/24 06:23:46 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    /**
@@ -94,10 +99,11 @@ public abstract class MacResourceHandler extends JPanel
          tmpfilename = new StringBuffer(savedir.getPath());
          tmpfilename.append( File.separator + myResArray[i].getID() );
          if(myResArray[i].getName() != null)
-            tmpfilename.append("_" + myResArray[i].getName());
+            tmpfilename.append("_" + myResArray[i].getName().
+                               replace(' ', '_').
+                               replace(File.separatorChar, '+'));
          tmpfilename.append(".raw");
          filename = tmpfilename.toString().replace(' ', '_');
-         //System.out.println("\tSaving \'" + filename + "\'...");
 
          try
          {
@@ -108,6 +114,7 @@ public abstract class MacResourceHandler extends JPanel
          }
       }
    }
+
 
    /*--------------------------------------------------------------------*/
    public String[] about()

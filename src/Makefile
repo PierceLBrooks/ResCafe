@@ -8,7 +8,8 @@
 .SUFFIXES: .class .java .jar
 
 
-JAVAC = javac
+#JAVAC = javac
+JAVAC=jikes
 
 APPCLASSES=ResourceManager Colors Jarload Handlers \
 	FilePicker.class JFilePicker.class \
@@ -16,6 +17,7 @@ APPCLASSES=ResourceManager Colors Jarload Handlers \
 	DocumentManager.class \
 	FileController.class \
 	MacResTypeListModel.class IconTable.class \
+	jHandlerView.class \
 	jMainResourceView.class ResCafe.class
 
 PLUGINS=MacResourceHandler.class \

@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/DocumentManager.java,v 1.2 1999/10/28 05:47:15 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/DocumentManager.java,v 1.2 1999/10/28 05:47:15 gbsmith Exp $ */
 
 import java.io.File;
 import java.io.RandomAccessFile;

@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/IconTable.java,v 1.1 1999/10/27 07:13:41 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/IconTable.java,v 1.1 1999/10/27 07:13:41 gbsmith Exp $ */
 
 import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
 
