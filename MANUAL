@@ -1,4 +1,5 @@
 ResCafé mini-Manual
+v1.2.5
 
 Loading:
    To start with you can give a file to open on the command line or
@@ -50,3 +51,7 @@ Other:
    - Throwing up a little blurb about the app.
    - Showing some info and the handled types of the currently
      displayed handler frame.
+
+
+-----------------------------------------------------------------------------
+$Id: MANUAL,v 1.1 2000/07/15 20:45:08 gbsmith Exp gbsmith $

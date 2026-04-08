@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/SICNResourceHandler.java,v 1.4 1999/12/19 05:34:51 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/plugins/RCS/SICNResourceHandler.java,v 1.4 1999/12/19 05:34:51 gbsmith Exp $ */
 
 import javax.swing.*;
 import javax.swing.table.*;

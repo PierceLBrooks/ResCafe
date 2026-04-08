@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/MENURecord.java,v 1.1 1999/10/21 21:38:58 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/plugins/RCS/MENURecord.java,v 1.1 1999/10/21 21:38:58 gbsmith Exp $ */
 
 import javax.swing.JMenu;
 

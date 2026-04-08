@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/MacStandard16Palette.java,v 1.6 1999/12/19 01:28:57 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/MacStandard16Palette.java,v 1.6 1999/12/19 01:28:57 gbsmith Exp $ */
 
 import java.awt.image.IndexColorModel;
 

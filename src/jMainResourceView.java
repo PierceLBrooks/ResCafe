@@ -1,6 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $ */
-
-import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $ */
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -43,8 +41,16 @@ import java.util.Observer;
 import ResourceManager.*;
 
 /*=======================================================================*/
+/* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
+/*=======================================================================*/
+
+/*=======================================================================*/
 /*
  * $Log: jMainResourceView.java,v $
+ * Revision 1.14  2000/05/25 06:48:56  gbsmith
+ * Removed references to Jimi. Moved menu instantiation code
+ * from constructor to its own method - buildMenus().
+ *
  * Revision 1.13  2000/05/24 06:54:46  gbsmith
  * Added the handlerView functionality to allow a GUI component to
  * display details about the loaded handler plugins rather than
@@ -104,10 +110,6 @@ import ResourceManager.*;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
-/*=======================================================================*/
-
-/*=======================================================================*/
 public class jMainResourceView extends JFrame implements Observer
 {
    /*--- Data -----------------------------------------------------------*/
@@ -125,7 +127,7 @@ public class jMainResourceView extends JFrame implements Observer
    JPanel typePanel, handlerPanel, typeLabPanel, handlerLabPanel, filePanel;
    JLabel typeLab, handlerLab, fnlab;
 
-   JSplitPane jsp;
+   JSplitPane  jsp;
    JScrollPane lsp;
    JList myTypeList;
 
@@ -135,25 +137,25 @@ public class jMainResourceView extends JFrame implements Observer
    jHandlerView hview = null;
 
    /*------ Models --------------------------------------------------------*/
-   ResourceModel currentResMod;
+   ResourceModel   currentResMod;
    DocumentManager docmgr;
 
-   HandlerTable handlers; // Not observables but we'll call
-   IconTable icons;       // them models anyway
+   HandlerTable    handlers; // Not observables but we'll call
+   IconTable       icons;    // them models anyway
 
    /*------ Controllers ---------------------------------------------------*/
-   FileController     flistener;
-   WindowController   locWinListener;
-   MenuItemController locMenuListener;
+   FileController        flistener;
+   WindowController      locWinListener;
+   MenuItemController    locMenuListener;
    DocMenuItemController locDocMenuListener;
-   TypeListController locListListener;
+   TypeListController    locListListener;
 
    /*------ Misc ----------------------------------------------------------*/
    Thread iconThread, handlerThread; // for loading the icons, handlers
 
    /*------ RCS -----------------------------------------------------------*/
    static final String rcsid =
-   "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
+   "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
 
    /*--- Methods ----------------------------------------------------------*/
    public jMainResourceView(String frameTitle)
@@ -167,8 +169,75 @@ public class jMainResourceView extends JFrame implements Observer
       iconThread.start();
 
       /* Set up menubar and menus -----------------------------------------*/
+      buildMenus();
+
+      /* Setup Panels -----------------------------------------------------*/
+      typePanel    = new JPanel();
+      handlerPanel = new JPanel();
+      contentPane.add(jsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                                           false, typePanel, handlerPanel ),
+                      "Center");
+      jsp.setOneTouchExpandable(true);
+
+      /* Set up list of Resource Types found ------------------------------*/
+      typePanel.setLayout(new BorderLayout());
+
+      typeLabPanel = new JPanel();
+      typeLabPanel.setBorder(BorderFactory.createRaisedBevelBorder());
+      //typeLabPanel.setBorder(BorderFactory.createEtchedBorder(
+      //   getBackground().brighter(), getBackground().darker()));
+
+      typePanel.add(typeLabPanel, "North");
+
+      typeLab = new JLabel("Resource Types");
+      typeLabPanel.add(typeLab);
+
+      myTypeList = new JList();
+      lsp = new JScrollPane(myTypeList);
+      typePanel.add(lsp, "Center");
+
+      /* Set up area for Resource Handler display -------------------------*/
+      handlerPanel.setLayout(new BorderLayout());
+
+      handlerLabPanel = new JPanel();
+      handlerLabPanel.setBorder(BorderFactory.createRaisedBevelBorder());
+      //handlerLabPanel.setBorder(BorderFactory.createEtchedBorder(
+      //   getBackground().brighter(), getBackground().darker()));
+
+      handlerPanel.add(handlerLabPanel, "North");
+
+      handlerLab = new JLabel("Resources");
+      handlerLabPanel.add(handlerLab);
+
+      /* Setup file name display ------------------------------------------*/
+      filePanel = new JPanel();
+      filePanel.setBorder(BorderFactory.createEtchedBorder(
+         getBackground().brighter(), getBackground().darker()));
+      fnlab = new JLabel("*no file loaded*");
+      filePanel.add(fnlab);
+      contentPane.add(filePanel, "South");
+
+      /* Setup event listeners local to this view -------------------------*/
+      addWindowListener(locWinListener = new WindowController());
+
+      myTypeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+      myTypeList.addListSelectionListener(locListListener =
+                                          new TypeListController());
+
+      /* Reset split pane to nicer proportions ----------------------------*/
+      jsp.setDividerLocation(jsp.getMinimumDividerLocation());
+
+      currentHandler = null;
+      currentType    = null;
+   }
+
+   /*----------------------------------------------------------------------*/
+   private void buildMenus()
+   {         
       mbar = new JMenuBar();
 
+      /*-----------*/
+      /*   File    */
       /*-------------------------------------------------------------------*/
       fileMenu = new JMenu("File", true);
       fileMenu.setMnemonic('F');
@@ -200,7 +269,11 @@ public class jMainResourceView extends JFrame implements Observer
       fileMenu.add(quitItem        = new JMenuItem("Quit", 'Q'));
       quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
                                                      Event.CTRL_MASK));
+      /*-------------------------------------------------------------------*/
 
+
+      /*-----------*/
+      /*   Type    */
       /*-------------------------------------------------------------------*/
       typeMenu = new JMenu("Type", true);
       typeMenu.setMnemonic('T');
@@ -208,27 +281,36 @@ public class jMainResourceView extends JFrame implements Observer
       typeMenu.add(typeItem = new JMenuItem("Show Handled Types", 'T'));
       typeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
                                                      Event.CTRL_MASK));
+      /*-------------------------------------------------------------------*/
 
+      /*-----------*/
+      /* Handlers  */
       /*-------------------------------------------------------------------*/
       handlerMenu = new JMenu("Handlers", true);
       handlerMenu.setMnemonic('a');
       /*-------------------------------------------------------------------*/
-      handlerMenu.add(rescanItem   = new JMenuItem("Rescan Handlers", 'R'));
+      handlerMenu.add(rescanItem     = new JMenuItem("Rescan Handlers", 'R'));
       rescanItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
                                                      Event.CTRL_MASK));
-
       handlerMenu.add(listHandlerItem = new JMenuItem("List Handlers by Type", 'H'));
-      handlerMenu.add(listTypeItem = new JMenuItem("List Types by Handler", 'T'));
+      handlerMenu.add(listTypeItem    = new JMenuItem("List Types by Handler", 'T'));
       // These names and descriptions can be confusing
+      /*-------------------------------------------------------------------*/
 
+
+      /*-----------*/
+      /* Documents */
       /*-------------------------------------------------------------------*/
       docMenu = new JMenu("Documents", true);
       docMenu.setMnemonic('d');
       /*-------------------------------------------------------------------*/
-      // Will dynamically
-      // list open docs here
-      //
+      /* Will dynamically                                                  */
+      /* list open docs here                                               */
+      /*                                                                   */
+      /*-------------------------------------------------------------------*/
 
+      /*-----------*/
+      /*   Help    */
       /*-------------------------------------------------------------------*/
       helpMenu = new JMenu("Help", true);
       helpMenu.setMnemonic('H');
@@ -240,6 +322,7 @@ public class jMainResourceView extends JFrame implements Observer
       helpMenu.add(aboutPlugItem = new JMenuItem("About Plugin", 'P'));
       aboutPlugItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,
                                                          Event.CTRL_MASK));
+      /*-------------------------------------------------------------------*/
 
       mbar.add(fileMenu);
       mbar.add(typeMenu);
@@ -249,56 +332,10 @@ public class jMainResourceView extends JFrame implements Observer
 
       setJMenuBar(mbar);
 
-      /* Setup Panels -----------------------------------------------------*/
-      typePanel    = new JPanel();
-      handlerPanel = new JPanel();
-      contentPane.add(jsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                                           false, typePanel, handlerPanel ),
-                      "Center");
-      jsp.setOneTouchExpandable(true);
-
-      /* Set up list of Resource Types found ------------------------------*/
-      typePanel.setLayout(new BorderLayout());
-
-      typeLabPanel = new JPanel();
-      typeLabPanel.setBorder(BorderFactory.createRaisedBevelBorder());
-      //typeLabPanel.setBorder(BorderFactory.createEtchedBorder(
-      //   getBackground().brighter(), getBackground().darker()));
-
-      typePanel.add(typeLabPanel, "North");
-
-      typeLab  = new JLabel("Resource Types");
-      typeLabPanel.add(typeLab);
-
-      myTypeList = new JList();
-      lsp = new JScrollPane(myTypeList);
-      typePanel.add(lsp, "Center");
-
-      /* Set up area for Resource Handler display -------------------------*/
-      handlerPanel.setLayout(new BorderLayout());
-
-      handlerLabPanel = new JPanel();
-      handlerLabPanel.setBorder(BorderFactory.createRaisedBevelBorder());
-      //handlerLabPanel.setBorder(BorderFactory.createEtchedBorder(
-      //   getBackground().brighter(), getBackground().darker()));
-
-      handlerPanel.add(handlerLabPanel, "North");
-
-      handlerLab = new JLabel("Resources");
-      handlerLabPanel.add(handlerLab);
-
-      /* Setup file name display ------------------------------------------*/
-      filePanel = new JPanel();
-      filePanel.setBorder(BorderFactory.createEtchedBorder(
-         getBackground().brighter(), getBackground().darker()));
-      fnlab = new JLabel("*no file loaded*");
-      filePanel.add(fnlab);
-      contentPane.add(filePanel, "South");
-
-      /* Setup event listeners local to this view -------------------------*/
+      /* Setup menu event listeners local to this view --------------------*/
       locDocMenuListener = new DocMenuItemController();
+      locMenuListener    = new MenuItemController();
 
-      locMenuListener = new MenuItemController();
       quitItem.addActionListener(locMenuListener);
 
       typeItem.addActionListener(locMenuListener);
@@ -309,18 +346,6 @@ public class jMainResourceView extends JFrame implements Observer
 
       aboutAppItem.addActionListener(locMenuListener);
       aboutPlugItem.addActionListener(locMenuListener);
-
-      addWindowListener(locWinListener = new WindowController());
-
-      myTypeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-      myTypeList.addListSelectionListener(locListListener =
-                                          new TypeListController());
-
-      /* Reset split pane to nicer proportions ----------------------------*/
-      jsp.setDividerLocation(jsp.getMinimumDividerLocation());
-
-      currentHandler = null;
-      currentType    = null;
    }
 
    /*----------------------------------------------------------------------*/
@@ -332,10 +357,7 @@ public class jMainResourceView extends JFrame implements Observer
    }
 
    /*--------------------------------------------------------------------*/
-   public void setHandlers(HandlerTable intab)
-   {
-      handlers = intab;
-   }
+   public void setHandlers(HandlerTable intab) {  handlers = intab;   }
 
    /*--------------------------------------------------------------------*/
    public void setFileController(FileController infc)
@@ -486,7 +508,6 @@ public class jMainResourceView extends JFrame implements Observer
       repaint();
    }
 
-
    /*--------------------------------------------------------------------*/
    private void updateResType()
    {
@@ -626,7 +647,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Local because it only affects aspects of the local display:
       // *** HOWEVER, perhaps quit portion should not be local
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent event)
@@ -670,7 +691,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // Local because it only affects what ResourceModel is VIEWED
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent ae)
@@ -687,7 +708,7 @@ public class jMainResourceView extends JFrame implements Observer
       // Detects clicks in the Type List and displays resources of that type
 
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void valueChanged(ListSelectionEvent lse)
@@ -706,12 +727,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // *** Perhaps this shouldn't be local after all
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.13 2000/05/24 06:54:46 gbsmith Exp $";
-
-      /*--------------------------------------------------------------------*/
-      public void windowClosing(WindowEvent event)
-      {
-         doQuit();
-      }
+      final String rcsid = "$Id: jMainResourceView.java,v 1.14 2000/05/25 06:48:56 gbsmith Exp $";
+      public void windowClosing(WindowEvent event) { doQuit(); }
    }
 }

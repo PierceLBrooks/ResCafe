@@ -1,9 +1,8 @@
-KNOWN_BUGS in ResCafe v0.2
-13 Oct 1999
+KNOWN_BUGS in ResCafe v1.2.5
+15 Jul 2000
 
-* ICN# - my simple 'ICN#' handler is having major problems saving the mask
-images to file. 'ics#' does NOT have this problem. Of course, it would
-probably be better to use the mask to make an alpha channel in the first
-place and save one image, but another plugin can always be made to do
-this later.
+
+-----------------------------------------------------------------------------
+$Id: KNOWN_BUGS,v 1.1 2000/07/15 20:42:26 gbsmith Exp gbsmith $
+
 

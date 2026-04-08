@@ -1,6 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/cicnResourceHandler.java,v 1.3 1999/10/21 22:29:04 gbsmith Exp $ */
-
-import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/plugins/RCS/cicnResourceHandler.java,v 1.4 2000/05/25 07:44:44 gbsmith Exp $ */
 
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -15,12 +13,21 @@ import java.awt.Image;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileWriter;
 
 import ResourceManager.*;
 
 /*=======================================================================*/
+/* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
+/*=======================================================================*/
+
+/*=======================================================================*/
 /*
  * $Log: cicnResourceHandler.java,v $
+ * Revision 1.4  2000/05/25 07:44:44  gbsmith
+ * Switched from Jimi to XpmImage which means proper handling
+ * of masks.
+ *
  * Revision 1.3  1999/10/21 22:29:04  gbsmith
  * Added Copyright notice.
  *
@@ -34,16 +41,9 @@ import ResourceManager.*;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
-/*=======================================================================*/
-
-/*=======================================================================*/
-public class cicnResourceHandler extends MacResourceHandler
+public class cicnResourceHandler extends GBS_ImageResourceHandler
 {
    /*--- Data -----------------------------------------------------------*/
-   JList resList;
-   JTable resTable;
-
    private static final String[] columnNames = {
       "ResID", "Name", "Size", "Icon", "Bitmap", "Mask" };
 
@@ -55,7 +55,7 @@ public class cicnResourceHandler extends MacResourceHandler
    cicnParser mycp;
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: cicnResourceHandler.java,v 1.3 1999/10/21 22:29:04 gbsmith Exp $";
+   static final String rcsid = "$Id: cicnResourceHandler.java,v 1.4 2000/05/25 07:44:44 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public String[] getTypes()
@@ -116,6 +116,9 @@ public class cicnResourceHandler extends MacResourceHandler
 
       resTable = new JTable(tmpModel);
       resTable.setRowHeight(36);
+
+      addDecorator();
+
       tc = resTable.getColumn("Icon");
       tc.setCellRenderer(renderer);
 
@@ -125,6 +128,8 @@ public class cicnResourceHandler extends MacResourceHandler
       tc = resTable.getColumn("Mask");
       tc.setCellRenderer(renderer);
 
+      optimizeColumnWidth();
+
       JScrollPane rtsp = new JScrollPane(resTable);
       add(rtsp, "Center");
    }
@@ -133,8 +138,12 @@ public class cicnResourceHandler extends MacResourceHandler
    public void save ( File savedir )
    {
       StringBuffer tmpfilename;
-      String filename;
-      String saveType;
+      String filename, imgname, saveType;
+
+      File outfile;
+      FileWriter fw;
+
+      XpmImage xpmout;
 
       if(resData == null)
       {
@@ -150,57 +159,69 @@ public class cicnResourceHandler extends MacResourceHandler
       // Icons
       for(int i=0; i < myResArray.length; i++)
       {
-         tmpfilename = new StringBuffer( savedir.getPath() );
-         tmpfilename.append( File.separator + myResArray[i].getID() );
+         tmpfilename = new StringBuffer( "" + myResArray[i].getID() );
+
          if(myResArray[i].getName() != null)
+         {
+            imgname = myResArray[i].getName();
             tmpfilename.append("_" + myResArray[i].getName());
+         } else
+            imgname = "icon" + myResArray[i].getID();
          tmpfilename.append(".xpm");
-         filename = tmpfilename.toString().replace(' ', '_');
-         //System.out.println("\tSaving \'" + filename + "\'...");
+
+         filename = tmpfilename.toString().replace(' ', '_').
+            replace(File.separatorChar, '+');
+         imgname = imgname.replace(' ', '_');
 
          try
          {
-            Jimi.putImage(icons[i], filename);
+            if(icons[i] == null)
+               System.err.println("Image " + imgname + " seems to be null!");
+            else
+            {
+               fw = new FileWriter(new File(savedir, filename));
+               if(masks[i] == null)
+                  xpmout = new XpmImage(imgname, this, icons[i]);
+               else
+                  xpmout = new XpmImage(imgname, this, icons[i], masks[i]);
+               xpmout.write(fw);
+            }
          } catch (Exception whatever) {
             System.err.println("ERROR: Got exception " + whatever );
          }
       }
+
 
       // Bitmaps
       for(int i=0; i < myResArray.length; i++)
       {
-         tmpfilename = new StringBuffer(savedir.getPath());
-         tmpfilename.append( File.separator + myResArray[i].getID() );
+         tmpfilename = new StringBuffer("" + myResArray[i].getID() );
+         
          if(myResArray[i].getName() != null)
+         {
+            imgname = myResArray[i].getName();
             tmpfilename.append("_" + myResArray[i].getName());
-         tmpfilename.append("_bitmap");
-         tmpfilename.append(".xpm");
-         filename = tmpfilename.toString().replace(' ', '_');
-         //System.out.println("\tSaving \'" + filename + "\'...");
+         } else
+            imgname = "bitmap" + myResArray[i].getID();
+         tmpfilename.append("_bitmap.xpm");
+
+         filename = tmpfilename.toString().replace(' ', '_').
+            replace(File.separatorChar, '+');
+         imgname = imgname.replace(' ', '_');
 
          try
          {
-            Jimi.putImage(bitmaps[i], filename);
-         } catch (Exception whatever) {
-            System.err.println("ERROR: Got exception " + whatever );
-         }
-      }
-
-      // Masks
-      for(int i=0; i < myResArray.length; i++)
-      {
-         tmpfilename = new StringBuffer(savedir.getPath());
-         tmpfilename.append( File.separator + myResArray[i].getID() );
-         if(myResArray[i].getName() != null)
-            tmpfilename.append("_" + myResArray[i].getName());
-         tmpfilename.append("_mask");
-         tmpfilename.append(".xpm");
-         filename = tmpfilename.toString().replace(' ', '_');
-         //System.out.println("\tSaving \'" + filename + "\'...");
-
-         try
-         {
-            Jimi.putImage(masks[i], filename);
+            if(bitmaps[i] == null)
+               System.err.println("Image " + imgname + " seems to be null!");
+            else
+            {
+               fw = new FileWriter(new File(savedir, filename));
+               if(masks[i] == null)
+                  xpmout = new XpmImage(imgname, this, bitmaps[i]);
+               else
+                  xpmout = new XpmImage(imgname, this, bitmaps[i], masks[i]);
+               xpmout.write(fw);
+            }
          } catch (Exception whatever) {
             System.err.println("ERROR: Got exception " + whatever );
          }

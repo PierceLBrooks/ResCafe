@@ -3,7 +3,7 @@
 
 JAVAC = jikes
 
-AUX=RGBColorNames.class XpmImage.class GBS_ImageResourceHandler.class
+AUX=GBS_ImageResourceHandler.class
 
 PLUGINS=BNDLResourceHandler.class \
 	CURSResourceHandler \
@@ -41,9 +41,7 @@ ICN_maskResourceHandler: IconRenderer.class ICN_maskResourceHandler.class
 
 ICONResourceHandler: IconRenderer.class ICONResourceHandler.class
 
-IconFamilyResourceHandler: RGBColorNames.class XpmImage.class \
-	IconRenderer.class GBS_ImageResourceHandler.class \
-	IconFamilyResourceHandler.class
+IconFamilyResourceHandler: IconRenderer.class GBS_ImageResourceHandler.class IconFamilyResourceHandler.class
 
 MENUResourceHandler: MENURecord.class MENUResourceHandler.class 
 

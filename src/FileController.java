@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/FileController.java,v 1.7 1999/10/28 03:59:54 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/FileController.java,v 1.7 1999/10/28 03:59:54 gbsmith Exp $ */
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

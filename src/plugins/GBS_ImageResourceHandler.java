@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/GBS_ImageResourceHandler.java,v 1.4 2000/05/24 06:21:14 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/plugins/RCS/GBS_ImageResourceHandler.java,v 1.4 2000/05/24 06:21:14 gbsmith Exp $ */
 
 import java.awt.BorderLayout;
 import java.awt.Image;

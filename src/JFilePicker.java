@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/JFilePicker.java,v 1.4 1999/10/28 04:00:42 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/JFilePicker.java,v 1.4 1999/10/28 04:00:42 gbsmith Exp $ */
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;

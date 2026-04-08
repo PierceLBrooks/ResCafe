@@ -1,15 +1,18 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/IconTable.java,v 1.1 1999/10/27 07:13:41 gbsmith Exp $ */
-
-import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/IconTable.java,v 1.2 2000/05/25 05:55:31 gbsmith Exp $ */
 
 import javax.swing.ImageIcon;
 
 import java.util.Hashtable;
+
 import java.io.File;
+import java.io.FileReader;
 
 /*=======================================================================*/
 /*
  * $Log: IconTable.java,v $
+ * Revision 1.2  2000/05/25 05:55:31  gbsmith
+ * Removed Jimi calls and replaced with Custom XpmImage class
+ *
  * Revision 1.1  1999/10/27 07:13:41  gbsmith
  * Initial revision
  *
@@ -23,7 +26,7 @@ class IconTable extends Hashtable implements Runnable
    String icon_dirname;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: IconTable.java,v 1.1 1999/10/27 07:13:41 gbsmith Exp $";
+   static final String rcsid = "$Id: IconTable.java,v 1.2 2000/05/25 05:55:31 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    IconTable(String indir)
@@ -37,13 +40,14 @@ class IconTable extends Hashtable implements Runnable
    {
       load();
    }
-   
+
    /*--------------------------------------------------------------------*/
    void load()
    {
       String icon_filenames[];
       String icontype;
       File   icondir = new File(icon_dirname);
+      XpmImage myxpm;
 
       // Get file list - assume everything in dir is an image
       icon_filenames = icondir.list();
@@ -55,8 +59,17 @@ class IconTable extends Hashtable implements Runnable
             icon_filenames[i].substring(0, icon_filenames[i].lastIndexOf('.'));
          icontype = icontype.replace('_', ' '); // Interpret underscores as spaces
 
-         put(icontype, new ImageIcon(Jimi.getImage(
-            icon_dirname + "/" + icon_filenames[i])));
+         if(icon_filenames[i].endsWith(".xpm") ||
+            icon_filenames[i].endsWith(".XPM"))
+         {
+            try
+            {
+               myxpm = new XpmImage(
+                  new FileReader(new File(icondir, icon_filenames[i])));
+               put(icontype, new ImageIcon(myxpm.getImage()));
+            } catch(Exception whatever) {
+            }
+         }
       }
    }
 }

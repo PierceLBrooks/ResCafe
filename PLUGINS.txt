@@ -46,3 +46,7 @@ Someone want to write plugins for:
    PICT
    snd <- now that would be cool
 ?
+
+
+-----------------------------------------------------------------------------
+$Id: PLUGINS.txt,v 1.1 2000/07/15 20:45:57 gbsmith Exp gbsmith $

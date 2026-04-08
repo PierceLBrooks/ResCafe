@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/plugins/RCS/XpmImage.java,v 1.3 2000/05/24 06:05:19 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/XpmImage.java,v 1.4 2000/05/25 06:17:15 gbsmith Exp $ */
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,6 +10,7 @@ import java.io.Writer;
 
 import java.awt.Component;
 import java.awt.Image;
+import java.awt.Toolkit;
 
 import java.awt.image.MemoryImageSource;
 import java.awt.image.PixelGrabber;
@@ -34,6 +35,10 @@ import java.util.Vector;
 /*=======================================================================*/
 /*
  * $Log: XpmImage.java,v $
+ * Revision 1.4  2000/05/25 06:17:15  gbsmith
+ * Added additional getImage() method that uses the Toolkit rather
+ * than a Component for Image creation
+ *
  * Revision 1.3  2000/05/24 06:05:19  gbsmith
  * Added copyright notice.
  *
@@ -52,7 +57,7 @@ public class XpmImage
    /*====================================================================*/
    /* Data                                                               */
    /*====================================================================*/
-   static String rcsid = "$Id: XpmImage.java,v 1.3 2000/05/24 06:05:19 gbsmith Exp $";
+   static String rcsid = "$Id: XpmImage.java,v 1.4 2000/05/25 06:17:15 gbsmith Exp $";
 
    // the 92 chars we can use to make printable chars
    static String printable = " .XoO+@#$%&*=-;:>,<1234567890qwertyuipasdfghjklzxcvbnmMNBVCZASDFGHJKLPIUYTREWQ!~^/()_`'][{}|";
@@ -338,6 +343,26 @@ public class XpmImage
 
       mis = new MemoryImageSource(width, height, rgbpixels, 0, width);
       outImg = mycomp.createImage(mis);
+      return outImg;
+   }
+
+   /*--------------------------------------------------------------------*/
+   public Image getImage()
+   {
+      // Toolkit version
+      Image outImg;
+      int[] rgbpixels;
+      int row, col;
+      MemoryImageSource mis;
+
+      rgbpixels = new int[pixels.length];
+
+      for(row = 0; row < height; row++)
+         for(col = 0; col < width; col++)
+            rgbpixels[row * width + col] = colors[pixels[row * width + col]];
+
+      mis = new MemoryImageSource(width, height, rgbpixels, 0, width);
+      outImg = Toolkit.getDefaultToolkit().createImage(mis);
       return outImg;
    }
 

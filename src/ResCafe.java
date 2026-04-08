@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/ResCafe.java,v 1.7 2000/05/24 06:55:30 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/ResCafe.java,v 1.8 2000/05/25 06:39:05 gbsmith Exp $ */
 
 import java.awt.Dialog;
 import java.awt.Image;
@@ -11,8 +11,16 @@ import java.io.RandomAccessFile;
 import ResourceManager.*;
 
 /*=======================================================================*/
+/* Copyright (c) 1999-2000 by G. Brannon Smith -- All Rights Reserved    */
+/*=======================================================================*/
+
+/*=======================================================================*/
 /*
  * $Log: ResCafe.java,v $
+ * Revision 1.8  2000/05/25 06:39:05  gbsmith
+ * Can now load multiple files given as arguments rather than just
+ * one. Also added version String for title (!=RCS version).
+ *
  * Revision 1.7  2000/05/24 06:55:30  gbsmith
  * New handlerView feature introduced.
  *
@@ -38,29 +46,29 @@ import ResourceManager.*;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
-/*=======================================================================*/
-
-/*=======================================================================*/
 public class ResCafe
 {
    /*--- Data -----------------------------------------------------------*/
-   jMainResourceView myview;
+   jMainResourceView myview; // Sort of the (GUI) heart of the system
    jHandlerView      hview;
    DocumentManager   mydocmgr;
    HandlerTable      myhandlers;
    FileController    myfctrl;
 
+   static String version = "1.2.5";
+   
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ResCafe.java,v 1.7 2000/05/24 06:55:30 gbsmith Exp $";
+   static final String rcsid = "$Id: ResCafe.java,v 1.8 2000/05/25 06:39:05 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public static void main( String args[] )
    {
       ResCafe app = new ResCafe();
 
-      // Load a file if given a name
-      if(args.length > 0) app.mydocmgr.load(new File(args[0]));
+      // Load files if given a names on the command-line
+      if(args.length > 0)
+         for(int a = 0; a < args.length; a++) 
+            app.mydocmgr.load(new File(args[a]));
    }
 
    /*--------------------------------------------------------------------*/
@@ -80,7 +88,7 @@ public class ResCafe
       handlerThread.start();
 
       // Attach parts to View
-      myview  = new jMainResourceView("ResCafé Resource Extractor");
+      myview  = new jMainResourceView("ResCafé " + version +  " Resource Extractor");
       myview.setDocManager(mydocmgr);
       myview.setHandlers(myhandlers);
       myview.setFileController(myfctrl);

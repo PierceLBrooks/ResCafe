@@ -16,6 +16,7 @@ APPCLASSES=ResourceManager Colors Jarload Handlers \
         MacBinaryHeader.class \
 	DocumentManager.class \
 	FileController.class \
+	RGBColorNames.class XpmImage.class \
 	MacResTypeListModel.class IconTable.class \
 	jHandlerView.class \
 	jMainResourceView.class ResCafe.class
@@ -73,7 +74,9 @@ endif
 
 Handlers: MacResourceHandler.class HandlerTable.class DefaultResourceHandler.class
 
-plugins: ${PLUGINS}
+plugins: app
+	$(MAKE) -C plugins
+
 
 .java.class:
 	${JAVAC} -classpath .:/opt/java/classes/JimiProClasses.zip:${CLASSPATH} -d ${CLASSDIR}  $<
@@ -81,3 +84,4 @@ plugins: ${PLUGINS}
 clean:  
 	rm -f *.class
 	$(MAKE) clean -C ResourceManager
+

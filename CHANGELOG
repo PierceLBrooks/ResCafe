@@ -1,6 +1,13 @@
 ResCafe Change Log
 ==================
 
+1.2 -> 1.2.5
+---------------
+Completely replaced Jimi with XpmImage for all code including plugins.
+Also fixed ResCafe top class so multiple files can be loaded on the
+commandline.
+
+
 1.1 -> 1.2
 ---------------
 Still more fun changes. Added support for mouse click sorting of
@@ -25,3 +32,9 @@ faster start up. Also added menu shortcuts and mnemonics.
 0 -> 1.0
 ---------------
 Initial Release
+
+
+-----------------------------------------------------------------------------
+$Id: CHANGELOG,v 1.3 2000/07/15 20:23:00 gbsmith Exp $
+-----------------------------------------------------------------------------
+

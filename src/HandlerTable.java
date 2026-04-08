@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/RCS/HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/RCS/HandlerTable.java,v 1.9 2000/05/24 06:50:29 gbsmith Exp $ */
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

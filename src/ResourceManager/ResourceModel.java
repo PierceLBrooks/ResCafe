@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2/src/ResourceManager/RCS/ResourceModel.java,v 1.7 2000/05/24 02:51:56 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.2.5/src/ResourceManager/RCS/ResourceModel.java,v 1.7 2000/05/24 02:51:56 gbsmith Exp $ */
 
 package ResourceManager;
 
