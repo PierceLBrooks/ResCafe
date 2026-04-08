@@ -8,8 +8,8 @@
 .SUFFIXES: .class .java
 
 
-#JAVAC = javac 
-JAVAC = jikes
+JAVAC = javac 
+#JAVAC = jikes
 VPATH = .:ResourceManager
 
 #----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/ResourceManager/RCS/ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $ */
+/* $Header: /home/cvsroot/ResCafe/src/ResourceManager/ResourceType.java,v 1.5 2009-08-11 02:36:11 gbsmith Exp $ */
 
 package ResourceManager;
 
@@ -11,6 +11,9 @@ import java.util.Hashtable;
 /*=======================================================================*/
 /*
  * $Log: ResourceType.java,v $
+ * Revision 1.5  2009-08-11 02:36:11  gbsmith
+ * Changed to MIT License
+ *
  * Revision 1.4  2000/11/27 20:05:34  gbsmith
  * Added ident tags for ResourceHeader and ResourceMap classes.
  *
@@ -27,7 +30,28 @@ import java.util.Hashtable;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
+/* The MIT License
+
+Copyright (c) 1999-2009 by G. Brannon Smith
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 /*=======================================================================*/
 
 /*=======================================================================*/
@@ -51,7 +75,7 @@ public class ResourceType
    Hashtable resHash;   // Keep array for backward compat
 
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $";
+   static final String rcsid = "$Id: ResourceType.java,v 1.5 2009-08-11 02:36:11 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    void readType(RandomAccessFile inraf) throws IOException
@@ -230,7 +254,7 @@ class ResourceHeader
    long mapLength;
 
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $";
+   static final String rcsid = "$Id: ResourceType.java,v 1.5 2009-08-11 02:36:11 gbsmith Exp $";
 
    /*----------------------------------------------------------------------*/
    void read(RandomAccessFile inraf) throws IOException
@@ -267,7 +291,7 @@ class ResourceMap
    short numTypes;
 
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: ResourceType.java,v 1.4 2000/11/27 20:05:34 gbsmith Exp $";
+   static final String rcsid = "$Id: ResourceType.java,v 1.5 2009-08-11 02:36:11 gbsmith Exp $";
 
    /*----------------------------------------------------------------------*/
    void read(RandomAccessFile inraf) throws IOException

@@ -1,466 +1,410 @@
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<HTML>
-  <HEAD>
-
-<!-- RCS --------------------------------------------------------------- -->
-<!-- $Header: /home/gbsmith/projects/ResCafe/ResCafe_devel/RCS/index.html,v 1.4 2000/12/12 21:09:54 gbsmith Exp $ -->
-<!--
-$Log: index.html,v $
-Revision 1.4  2000/12/12 21:09:54  gbsmith
-ResCafe v1.4
-
-Revision 1.3  2000/07/15 22:19:41  gbsmith
-ResCafe v1.2.5
-
-Revision 1.2  2000/07/15 20:18:17  gbsmith
-ResCafe v1.2
-
-Revision 1.1  2000/07/15 20:13:56  gbsmith
-Initial revision
-
-
--->
-<!-- ------------------------------------------------------------------- -->
-
-
-<TITLE> ResCaf&eacute; - Mac Resource Fork Viewer and Extractor</TITLE>
-<!-- Changed by: George B. Smith, 12-Dec-2000 -->
-
-</HEAD>
-  <BODY BGCOLOR=#FFFFFF>
-    <A NAME="top">
-
-    <!-- ---------------------------------------------------------------- -->
-    <!-- Top  -->
-
-    <FONT SIZE=+3><B>ResCaf&eacute;</B> - Mac Resource Fork Viewer and Extractor</FONT><BR>
-    <FONT SIZE=+3><B>ResPresso</B> - command line version</FONT><BR>
-    Version 1.4<BR>
-    <I>"Doing its part to run the coffee metaphor into the ground."</I><BR>
-    by G. Brannon Smith &lt;
-    <A HREF="mailto:gbsmith@mail.com">gbsmith@mail.com</A>
-    &gt;
-
-    <CENTER>
-    <HR SIZE=3>
-    <!-- ---------------------------------------------------------------- -->
-    [<A HREF="#Introduction"> Introduction</A>]
-    [<A HREF="#Changes">      Changes     </A>]
-    [<A HREF="#License">      License     </A>]
-    [<A HREF="#Screenshots">  Screenshots </A>]
-    [<A HREF="#Requirements"> Requirements</A>]
-    [<A HREF="#Disclaimer">   Disclaimer  </A>]
-    [<A HREF="#Installation"> Installation</A>]
-    [<A HREF="#Bugs">         Bugs        </A>]
-    [<A HREF="#Linux">        Linux       </A>]
-    [<A HREF="#Download">     Download    </A>]
-    [<A HREF="#Thanks">       Acknowledgements</A>]
-    <!-- ---------------------------------------------------------------- -->
-    <HR SIZE=3>
-    </CENTER>
-
-    <P></P>
-
-    <!-- Intro ---------------------------------------------------------- -->
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <A NAME="Introduction"></A>
-      <TR>
-        <TD BGCOLOR=#000077>
-            <IMG SRC="round_corner_left.gif">
-            <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                      Introduction & Hype
-                    </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          ResCaf&eacute; is a Swing-based Java utility for reading and
-          extracting resources such as ICONs and MENUs from the Resource Forks
-          of Macintosh files. It is somewhat similar to ResEdit on MacOS except
-          that it is not an editor; it operates on files in a read-only
-          fashion.
-
-          <P>
-            ResCaf&eacute; was created with one main idea in mind -
-            <B>extensibility</B>. There are so many different types of
-           resources and
-            not everyone is interested in the same ones (though there are some
-            that are probably more in demand, such as Icons). I didn't want to
-            write a parser, what I call a <B>Handler</B>, for all of them,
-            nor did
-            I want to exclude potential new ones or force a recompile to add
-            them. So I've tried to implement a kind of
-            <I>Plugin Architecture</I>
-            which, while awkward in places, seems to work well overall.
-            It even <I>auto-detects</I> new plugins (with some caveats)! Cool!
-          </P>
-          <P>
-          <I>However, if someone out there knows a lot about plugins in Java
-             apps or the location of a tutorial, I'd love to
-             <A HREF="mailto:gbsmith@mail.com">hear about it</A>.</I>
-          </P>
-
-          <P>Along those lines of of extensibility, I wrote <B>ResPresso</B> which
-          is a text-only, command-line program that reuses the ResourceManager package
-          and the plugins as well.
-          </P>
-
-
-          I hope someone will write some cool plugins - mine are kinda boring.
-          I also took this as an opportunity to explore:
-          <UL>
-            <LI> Swing, which is really cool and powerful once you get to know it;
-              A vast improvement over AWT.
-            </LI>
-
-            <LI> the MVC (Model-View-Controller) design framework/architecture/whatever.
-                I hope I'm using it right. It seems to a pretty good way to build stuff, 
-                but it can be tricky. I might have kludged it a bit at times.
-            </LI>
-          </UL>
-          <BR>
-          <BR>
-        </TD>
-      </TR>
-
-      <TR>
-    </TABLE>
-
-    <P><BR></P>
-
-    <!-- Changes -------------------------------------------------------- -->
-    <A NAME="Changes"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077>
-          <IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Changes
-                    </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          <DL>
-
-            <DT>1.3 -> 1.4</DT>
-            <DD>Yea! Thanks to some tips from 
-            <A HREF="mailto:Peter.Stuer@pandora.be">Peter Stuer</A>
-            I finally got the 'icns' plugin working! I can now save 32-bit
-            icons with alpha. I tweaked a lot of the code so it can better
-            locate the plugins and icons directories. The doc menu is now
-            alphabetized and can be traversed with 'Ctrl +' and 'Ctrl -'.
-            Added a new application to the package called <B>ResPresso</B>
-            which is a command-line version much like the original <B>macfork</B>.
-            It reuses the ResourceManager package and the plugin handlers.
-            Very cool.
-            </DD>
-
-            <DT>1.2.5 -> 1.3</DT>
-            <DD>Made some minor code modifications to solve problems I
-            was having with Java 1.3. Added an opening splash screen with
-            notifications about the loading procedure. Added the beginnings
-            of an 'icns' plugin. Unfortunately this does not parse the
-            32-bit components which really are the most important part
-            of 'icns' )-;.
-            </DD>
-
-            <DT>1.2 -> 1.2.5</DT>
-            <DD>Completely replaced Jimi with XpmImage for all code including plugins.
-            Also fixed ResCafe top class so multiple files can be loaded on the
-            commandline.
-            </DD>
-
-            <DT>1.1 -> 1.2</DT>
-            <DD>Still more fun changes. Added support for mouse click sorting
-            of plugin display columns as well as optimal adjustment of the
-            column widths. Rearranged the plugin class hierarchy so almost
-            all plugins can take advantage of it. Also added a custom
-            XpmImage class that supports mask so icons will be properly
-            exported to XPM files. Added the beginnings of GUI windows to
-            track the loaded plugins and what they can handle.
-            </DD>
-
-            <DT>1.0.1 -> 1.1</DT>
-            <DD>More radical changes. Added support for multiple open documents using the
-              new DocumentManager class. Open docs are accessible through a new
-              Documents menu.
-            </DD>
-
-            <DT>1.0 -> 1.01      (NOTE: Unreleased)</DT>
-            <DD>Put icon loading and plugin scanning into Java Threads. The result is 
-              faster start up. Also added menu shortcuts and mnemonics.
-            </DD>
-
-            <DT>0 -> 1.0</DT>
-            <DD>Initial Release</DD>
-          </DL>
-        </TD>
-      </TR>
-    </TABLE>
-
-    <P><BR></P>
-
-    <!-- License -------------------------------------------------------- -->
-    <A NAME="License"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    License
-                  </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          ResCaf&eacute; is distributed under the QPL by
-          <A HREF="http://www.troll.no">Troll</A>.
-          See it
-          <A HREF="LICENSE.html">here</A>.
-          <BR>
-          <BR>
-        </TD>
-      </TR>
-    </TABLE>
-
-    <P><BR></P>
-
-    <!-- Screenshots ---------------------------------------------------- -->
-    <A NAME="Screenshots"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Screenshots
-                  </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          <IMG SRC="screenshot.png">
-          <P>
-	  This screenshot is in PNG format and some browsers can't display
-          it properly (or at all), so if you can't see it or if it
-          doesn't look quite right, try the
-          <A HREF="screenshot.jpg">JPEG version</A>.
-          <BR><BR>
-        </TD>
-      </TR>
-    </TABLE>
-
-    <P><BR></P>
-    
-    <!-- Requirements --------------------------------------------------- -->
-    <A NAME="Requirements"></A>
-   <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077>
-          <IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Requirements
-                  </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          <OL>
-            <LI>Java 1.2 or better - available from
-              <A HREF="http://java.sun.com/">Sun</A>
-              or
-              <A HREF="http://www.blackdown.org">Blackdown</A>.
-              I develop with Java 1.3, but I think Java 1.2 will work.
-              Not so sure about Java 1.1. In any case you will need Java2D
-              available.
-              Surprisingly, one of the best Linux Java VMs out there is by
-              <A HREF="http://www.ibm.com/java/jdk/index.html">Big Blue</A>. In
-              fact, I would say the leading developer of Java tools for Linux,
-              IMHO, would have to be IBM. And while you're there, check out
-              their <B>Jikes</B> Java compiler. Two words: Suh weet!
-            </LI>
-            
-            <LI>Swing classes - also available from the above sources</LI>
-
-            <LI>Java Advanced Imaging (JAI) - available from 
-            <A HREF="http://www.javasoft.com/products/java-media/jai/index.html">Sun</A>
-            </LI>
-
-            <LI>Some kind of utility for getting an intact resource fork from
-             a Mac file onto your non-Mac machine. Resource forks have a nasty
-             habit of disappearing when transferring files from Macs and thus
-             require some special handling to preserve them. The traditional
-             method is called <B>Binhex encoding</B> which flattens Mac files
-             into ASCII format. Several Mac utilities, such as
-             <A HREF="http://www.aladdinsys.com/">StuffIt</A>, 
-             CompactPro, or the actual app called BinHex. Once on your
-             platform, you will have to obtain corresponding software to
-             decode. Check your favorite software repository, do an Internet
-             search for BinHex, or just check the Stuffit link above.
-             Linux users
-             <A HREF="#Linux">see below</A>
-             for an even better procedure.
-          </OL>
-          <UL>
-            <LI> JIMI classes (
-              <A HREF="http://java.sun.com/products/jimi">http://java.sun.com/products/jimi</A>
-              ) no longer required.
-            </LI>
-          </UL>
-
-          <P>
-          I think that's it...
-
-          <BR><BR>
-        </TD>
-      </TR>
-    </TABLE>
-
-    <P><BR></P>
-
-    <!-- Disclaimer --------------------------------------------------- -->
-    <A NAME="Disclaimer"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Disclaimer
-                  </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-      
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          This app was written and tested on an Intel/x86 Linux box with some
-          additional testing on a SPARC Solaris box. If you're on another
-          platform... good luck. (And if you're on a Mac, just use ResEdit).
-          BTW I did manage to get it to run on a friends 200MHz 32MB Windoze
-          machine after a lot of hassle and it ran OK... kinda jerky though.
-          <P>
-            If anyone knows how to write a nice BAT script to run ResCaf&eacute;
-            I'd love to see it.
-          </P>
-          <BR>
-        </TD>
-      </TR>
-    </TABLE>
-
-    <P></P>
-
-    <!-- Installation --------------------------------------------------- -->
-    <A NAME="Installation"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Installation
-                  </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-      
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          <B>MAIN:</B>
-          <OL>
-
-
-
-
-
-            <LI>Unpack the archive (I guess you already did).</LI>
-
-            <LI>Edit
-              <CODE>ResCafe.sh</CODE> and
-              <CODE>ResPresso.sh</CODE>
-              and fix the ResCafe location. Make sure the
-              <CODE>ResCafe.jar</CODE>
-              file is in
-              <CODE>CLASSPATH</CODE>.
-              (If you want to recompile, you will have to make similar changes to
-              the main
-              <CODE>Makefile</CODE>
-              )
-
-              <P>
-              You might have to make some more serious edits if your JVM
-              complains. Under Solaris I seem to have to explicitly give
-              <CODE>java</CODE>
-              the
-              <CODE>CLASSPATH</CODE>
-              with a
-              <CODE>-cp</CODE>
-              or
-              <CODE>-classpath</CODE>
-              option. 
-              </P>
-
-              <P>
-              You don't even have to use the shell scripts if you don't want to -
-              non-UNIX users won't anyway and will have to find
-              their own solution (May I suggest installing Linux? ;-) ).
-              </P>
-            </LI>
-
-            <LI> Make sure
-              <CODE>ResCafe.jar</CODE>,
-              <CODE>plugins</CODE>
-              and
-              <CODE>icons</CODE>
-              are under the same directory:
-              <PRE>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 1st June 2003), see www.w3.org" />
+  <!-- CVS =============================================================== -->
+  <!-- $Header: /home/cvsroot/ResCafe/index.html,v 1.6 2009-08-11 02:40:06 gbsmith Exp $ -->
+  <!-- =================================================================== -->
+
+  <title>ResCaf&eacute; - Mac Resource Fork Viewer and
+  Extractor</title><!-- Changed by: George B. Smith, 12-Dec-2000 -->
+
+  <style type="text/css">
+  /*<![CDATA[*/
+  body {
+  background-color: #FFFFFF;
+  }
+  li.c6 {list-style: none}
+  div.menu 
+	{
+	text-align: center;
+	font-size: 80%;
+	border-top-style: solid;
+	border-bottom-style: solid;
+	border-width: 1px;
+	border-color: black;
+	margin: 1ex 0;
+	padding: 5px;
+	}
+  .appname { font-size: 175%; font-weight: bold;}
+  .appdesc { font-size: 175%;}
+
+  table.section
+  {
+	width: 800px;
+    border-style: none;
+	border-collapse: collapse;
+	padding: 0;
+	margin-bottom: 3ex;
+  }
+
+  td.section_title
+  {
+	background-color: #000077;
+	background-image: url("images/round_corner_left.gif");
+    background-repeat: no-repeat;
+	color: white;
+	font-family: Arial,Helvetica;
+	font-size: 120%;
+	font-weight: bold;
+	padding-left: 16px;
+	}
+
+	td.toplink
+	{
+	background-color: #000077; 
+	text-align: right;
+	padding-right: 8px;
+	font-family: Arial,Helvetica
+	}
+
+	td.content { padding: 1ex; background-color: #eeeeee; }	 
+
+	td.toplink a { color: white; }
+
+	div.cvs
+	{
+	  font-style: italic;
+	  border-top-style: solid; 
+      border-width: 1px;
+      border-color: black;
+      padding-top: 1ex;
+    }
+  /*]]>*/
+  </style>
+</head>
+
+  <body>
+	<a name="top" id="top">
+	  <!-- ================================================================ -->
+	  <!-- Top  -->
+	  <span class="appname">ResCaf&eacute;</span>
+	  <span class="appdesc"> -	Mac Resource Fork Viewer and Extractor</span>
+	  <br/>
+	  <span class="appname">ResPresso</span>
+	  <span class="appdesc"> - command line version</span><br/>
+  Version 1.4<br />
+  <span style="font-style: italic;">"Doing its part to run the coffee metaphor into the
+  ground."</span><br />
+  by G. Brannon Smith &lt;</a> <a href="mailto:brannonsmith@yahoo.com">brannonsmith@yahoo.com</a> &gt;
+
+  <div class="menu" >
+    <!-- ================================================================ -->
+    [ <a href="#Introduction">Introduction</a>]
+	[ <a href="#Changes">Changes</a> ] [ <a href="#License">License</a> ]
+	[ <a href="#Screenshots">Screenshots</a> ]
+	[ <a href="#Requirements">Requirements</a>]
+	[ <a href="#Disclaimer">Disclaimer</a> ]
+	[ <a href="#Installation">Installation</a>]
+	[ <a href="#Bugs">Bugs</a> ]
+    [ <a href="#Linux">Linux</a> ]
+	[ <a href="#Download">Download</a> ]
+	[ <a href="#Thanks">Acknowledgements</a>] 
+    <!-- ================================================================ -->
+  </div>
+  <!-- Intro ========================================================== -->
+  <a name="Introduction" id="Introduction"></a>
+
+  <!-- table border="0" cellpadding="0" cellspacing="0" width="800" -->
+  <table class="section">
+    <tr>
+      <td class="section_title">Introduction &amp; Hype</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
+
+    <tr>
+		<td class="content" colspan="2">
+		  ResCaf&eacute; is a Swing-based Java utility for reading
+		  and extracting resources such as ICONs and MENUs from the
+		  Resource Forks of Macintosh files. It is somewhat similar
+		  to ResEdit on MacOS except that it is not an editor; it
+		  operates on files in a read-only fashion.
+
+		  <p>ResCaf&eacute; was created with one main idea in mind -
+			<span style="font-weight: bold">extensibility</span>. 
+			There are so many different types of
+			resources and not everyone is interested in the same ones
+			(though there are some that are probably more in demand,
+			such as Icons). I didn't want to write a parser, what I
+			call a
+			<span style="font-weight: bold">Handler</span>,
+			for all of them, nor did I want to
+			exclude potential new ones or force a recompile to add
+			them. So I've tried to implement a kind of
+			<span style="font-style: italic">Plugin Architecture</span>
+			which, while awkward in places, seems to
+			work well overall. It even
+			<span style="font-style: italic">auto-detects</span>
+			new plugins	(with some caveats)! Cool!</p>
+
+		  <p style="font-style: italic">However, if someone out there knows a lot
+			about plugins in Java apps or the location of a tutorial,
+			I'd love to
+			<a href="mailto:brannonsmith@yahoo.com">hear about it</a>.
+		  </p>
+
+		  <p>Along those lines of of extensibility, I wrote
+			<span style="font-weight: bold">ResPresso</span>
+			which is a text-only, command-line program
+			that reuses the ResourceManager package and the plugins as
+			well.
+		  </p>
+		  <p>I hope someone will write some cool plugins - mine
+		  are kinda boring. I also took this as an opportunity to
+		  explore:
+		  </p>
+
+        <ul>
+          <li>Swing, which is really cool and powerful once you get
+          to know it; A vast improvement over AWT.</li>
+
+          <li>the MVC (Model-View-Controller) design
+          framework/architecture/whatever. I hope I'm using it
+          right. It seems to a pretty good way to build stuff, but
+          it can be tricky. I might have kludged it a bit at
+          times.</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+  <!-- Changes ======================================================== -->
+  <a name="Changes" id="Changes"></a>
+
+<table class="section">    <tr>
+      <td class="section_title">Changes</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
+
+    <tr>
+      <td class="content" colspan="2">
+		  <dl>
+			<dt>1.4 -&gt; 1.4.1</dt>
+			<dd>Changed to MIT License at the request of Alexei Svitkine</dd>
+
+			<dt>1.3 -&gt; 1.4</dt>
+			<dd>Yea! Thanks to some tips from
+			  <a href="mailto:Peter.Stuer@pandora.be">Peter Stuer</a>
+			  I finally
+			  got the 'icns' plugin working! I can now save 32-bit
+			  icons with alpha. I tweaked a lot of the code so it can
+			  better locate the plugins and icons directories. The doc
+			  menu is now alphabetized and can be traversed with 'Ctrl
+			  +' and 'Ctrl -'. Added a new application to the package
+			  called
+			  <span style="font-weight: bold">ResPresso</span>
+			  which is a command-line version
+			  much like the original
+			  <span style="font-weight: bold">macfork</span>.
+			  It reuses the ResourceManager package and the plugin handlers.
+			  Very cool.</dd>
+
+			<dt>1.2.5 -&gt; 1.3</dt>
+			<dd>Made some minor code modifications to solve problems
+			  I was having with Java 1.3. Added an opening splash
+			  screen with notifications about the loading procedure.
+			  Added the beginnings of an 'icns' plugin. Unfortunately
+			  this does not parse the 32-bit components which really
+			  are the most important part of 'icns' )-;.</dd>
+
+			<dt>1.2 -&gt; 1.2.5</dt>
+			<dd>Completely replaced Jimi with XpmImage for all code
+			  including plugins. Also fixed ResCafe top class so
+			  multiple files can be loaded on the commandline.</dd>
+
+			<dt>1.1 -&gt; 1.2</dt>
+			<dd>Still more fun changes. Added support for mouse click
+			  sorting of plugin display columns as well as optimal
+			  adjustment of the column widths. Rearranged the plugin
+			  class hierarchy so almost all plugins can take advantage
+			  of it. Also added a custom XpmImage class that supports
+			  mask so icons will be properly exported to XPM files.
+			  Added the beginnings of GUI windows to track the loaded
+			  plugins and what they can handle.</dd>
+
+			<dt>1.0.1 -&gt; 1.1</dt>
+			<dd>More radical changes. Added support for multiple open
+			  documents using the new DocumentManager class. Open docs
+			  are accessible through a new Documents menu.</dd>
+
+			<dt>1.0 -&gt; 1.01 (NOTE: Unreleased)</dt>
+			<dd>Put icon loading and plugin scanning into Java
+			  Threads. The result is faster start up. Also added menu
+			  shortcuts and mnemonics.</dd>
+
+			<dt>0 -&gt; 1.0</dt>
+			<dd>Initial Release</dd>
+		  </dl>
+      </td>
+    </tr>
+  </table>
+  <!-- License ======================================================== -->
+  <a name="License" id="License"></a>
+
+<table class="section">    <tr>
+      <td class="section_title">License</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
+
+    <tr>
+      <td class="content" colspan="2">As of 10 Aug 2009, ResCaf&eacute;  is
+      distributed under the <a href=
+      "http://www.opensource.org/licenses/mit-license.php">MIT License</a>. See it <a href=
+      "LICENSE.html">here</a>.
+      </td>
+    </tr>
+  </table>
+
+  <!-- Screenshots ==================================================== -->
+  <a name="Screenshots" id="Screenshots"></a>
+
+<table class="section">    <tr>
+      <td class="section_title">Screenshots</td>
+      <td class="toplink"><a  href="#top">[top]</a></td>
+    </tr>
+
+    <tr>
+	  <td class="content" colspan="2">
+        <img src="images/screenshot.png" alt="ResCafe PNG screenshot" />
+
+        <p>This screenshot is in PNG format and some browsers can't
+        display it properly (or at all), so if you can't see it or
+        if it doesn't look quite right, try the <a href=
+        "screenshot.jpg">JPEG version</a>.</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Requirements =================================================== -->
+  <a name="Requirements" id="Requirements"></a>
+
+<table class="section">    <tr>
+      <td class="section_title">Requirements</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
+
+    <tr>
+      <td class="content" colspan="2">
+		  <ol>
+			<li>Java 1.2 or better - available from
+			  <a href="http://java.sun.com/">Sun</a> or
+			  <a href="http://www.blackdown.org">Blackdown</a>.
+			  I develop with
+			  Java 1.3, but I think Java 1.2 will work. Not so sure
+			  about Java 1.1. In any case you will need Java2D
+			  available. Surprisingly, one of the best Linux Java VMs
+			  out there is by
+			  <a href="http://www.ibm.com/java/jdk/index.html">Big Blue</a>.
+			  In fact, I would say the leading developer of Java tools for
+			  Linux, IMHO, would have to be IBM. And while you're
+			  there, check out their
+			  <span style="font-weight: bold">Jikes</span>
+			  Java compiler. Two words: Suh weet!</li>
+
+			<li>Swing classes - also available from the above
+			  sources</li>
+
+			<li>Java Advanced Imaging (JAI) - available from 
+			  <a href="http://www.javasoft.com/products/java-media/jai/index.html">Sun</a></li>
+
+			<li>Some kind of utility for getting an intact resource
+			  fork from a Mac file onto your non-Mac machine. Resource
+			  forks have a nasty habit of disappearing when
+			  transferring files from Macs and thus require some
+			  special handling to preserve them. The traditional method
+			  is called
+			  <span style="font-weight: bold">Binhex encoding</span>
+			  which flattens Mac files
+			  into ASCII format. Several Mac utilities, such as
+			  <a href="http://www.aladdinsys.com/">StuffIt</a>,
+			  CompactPro, or the actual app called BinHex. Once on your
+			  platform, you will have to obtain corresponding software
+			  to decode. Check your favorite software repository, do an
+			  Internet search for BinHex, or just check the Stuffit
+			  link above. Linux users
+			  <a href="#Linux">see below</a>
+			  for an even better procedure.</li>
+		  </ol>
+
+        <ul>
+          <li>JIMI classes (
+			  <a href="http://java.sun.com/products/jimi">http://java.sun.com/products/jimi</a>
+          ) no longer required.
+			</li>
+        </ul>
+
+        <p>I think that's it...</p>
+      </td>
+    </tr>
+  </table>
+  <!-- Disclaimer =================================================== -->
+  <a name="Disclaimer" id="Disclaimer"></a>
+
+<table class="section">    <tr>
+      <td class="section_title">Disclaimer</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
+
+    <tr>
+      <td class="content" colspan="2">
+		  <p>This app was written and tested on an Intel/x86 Linux box
+        with some additional testing on a SPARC Solaris box. If
+        you're on another platform... good luck. (And if you're on
+        a Mac, just use ResEdit). BTW I did manage to get it to run
+        on a friends 200MHz 32MB Windoze machine after a lot of
+        hassle and it ran OK... kinda jerky though.</p>
+
+        <p>If anyone knows how to write a nice BAT script to run
+        ResCaf&eacute; I'd love to see it.</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Installation =================================================== -->
+  <a name="Installation" id="Installation"></a>
+  <table class="section">
+	  <tr>
+      <td class="section_title">Installation</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
+
+    <tr>
+      <td class="content" colspan="2">
+        <span style="font-weight: bold">MAIN:</span>
+
+        <ol>
+          <li>Unpack the archive (I guess you already did).</li>
+
+          <li>Edit
+			  <code>ResCafe.sh</code> and
+			  <code>ResPresso.sh</code> and fix the ResCaf&eacute; location.
+          Make sure the
+			  <code>ResCafe.jar</code> file is in
+			  <code>CLASSPATH</code>. (If you want to recompile, you will
+            have to make similar changes to the main
+			  <code>Makefile</code> )
+
+            <p>You might have to make some more serious edits if
+            your JVM complains. Under Solaris I seem to have to
+            explicitly give
+				<code>java</code> the
+				<code>CLASSPATH</code> with a 
+				<code>-cp</code> or
+				<code>-classpath</code> option.</p>
+
+            <p>You don't even have to use the shell scripts if you
+            don't want to - non-UNIX users won't anyway and will
+            have to find their own solution (May I suggest
+            installing Linux? ;-) ).</p>
+          </li>
+
+          <li>Make sure
+			  <code>ResCafe.jar</code>,
+			  <code>plugins</code> and
+			  <code>icons</code> are under the same directory:
+            <pre>
 
 
                        ResCafe/
@@ -477,350 +421,295 @@ SomeHandler.class    AnotherOne/     *YetAnother.jar* - in devel
             |                        |
       TheHandler.class         Support.class      
 
-</PRE>
-            </LI>
-            </OL>
+</pre>
+          </li>
+        </ol><span style="font-weight: bold">PLUGINS:</span>
 
-          <B>PLUGINS:</B>
-          <P>
-            Also notice you can dump plugins right in the 
-            <CODE>plugins</CODE>
-            dir, put them in their own subdirs (still under the
-            <CODE>plugins</CODE>
-            dir) with additional classes they may need, or stuff
-            them in jar files (again with their helper classes).
-            I'd be careful with this last one - I just got it working and I
-            don't know how well it works. (Actually
-            <A HREF="#Jars">see below</A>
-            for more on this).
-          </P>
+		  <p>Also notice you can dump plugins right in the
+			<code>plugins</code> dir, put them in their own subdirs
+			(still under the
+			<code>plugins</code> dir) with additional
+			classes they may need, or stuff them in jar files (again
+			with their helper classes). I'd be careful with this last
+			one - I just got it working and I don't know how well it
+			works. (Actually
+			<a href="#Jars">see below</a> for more on this).
+		  </p>
+		  That should be it... if you have a better setup,
+		  let me know. Again,
+		  <code>ResCafe.sh</code> is a shell script.
+		  If you can't use shell scripts, you'll have to come
+		  up with something else, like a
+		  <code>.BAT</code> or whatever your platform uses.
+		</td>
+    </tr>
+  </table>
+  <!-- Known Bugs & Caveats =========================================== --><a name="Bugs"
+        id="Bugs"></a>
 
-          That should be it... if you have a better setup, let me know. Again,
-          <CODE>ResCafe.sh</CODE>
-          is a shell script. If you can't use shell scripts, you'll have to
-          come up with something else, like a
-          <CODE>.BAT</CODE>
-          or whatever your platform uses.
-        </TD>
-        <BR><BR>
-      </TR>
-    </TABLE>
+<table class="section">    <tr>
+      <td class="section_title">Known Bugs &amp; Caveats</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
 
-    <P><BR></P>
+    <tr>
+      <td class="content" colspan="2">
+		  <ul>
+			<li>
+			  <span style="font-weight: bold">ICONS</span> - 
+			  <span style="font-style: italic">HEY! WHERE ARE ALL THE *Icons*?</span>
 
-    <!-- Known Bugs & Caveats ------------------------------------------- -->  
-    <A NAME="Bugs"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Known Bugs & Caveats
-                  </FONT></STRONG>
-        </TD>
+			  <p>Well, the best icons to use are the ones from
+				ResEdit, but I figure those are property of Apple so
+				I'm not going to redistribute them. I suppose you could
+				get a copy of ResEdit and extract the icons from there
+				with some tool - a tool that could read the Resource
+				Fork of ResEdit, display the icons therein, and save
+				them. Maybe I'll write one - and call it
+				ResCaf&eacute;...hmmm...</p>
+			  Of course, some cool custom icons might be better still.
+			</li>
 
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
+			<li class="c6"><a name="Jars" id="Jars"></a></li>
 
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          <UL>
-            <LI><B>ICONS</B> - <I>HEY! WHERE ARE ALL THE *Icons*?</I>
-              <P>
-                Well, the best icons to use are the ones from ResEdit, but I
-                figure those are property of Apple so I'm not going to
-                redistribute them. I suppose you could get a copy
-                of ResEdit and extract the icons from there with some tool -
-                a tool that could read the Resource Fork of ResEdit, display
-                the icons therein, and save them. Maybe I'll write one - and
-                call it ResCaf&eacute;...hmmm...
-              </P>
-              Of course, some cool custom icons might be better still.
-            </LI>
-            <P></P>
+			<li>
+			  <span style="font-weight: bold">JARs of PLUGINS</span> -
+			  Above I talked about scanning
+			  plugins in jar files. However the Jar Class Loader I
+			  used is copyrighted code from the
+			  <a href="http://www.javaworld.com">Javaworld</a> site. I need
+			  to contact the author about how I can use it. Until
+			  then, I don't think I will be including the Jar Class
+			  Loading classes in this distribution. ResCaf&eacute;
+			  should notice their absence and politely move along. To
+			  get around this, just don't use jar archives of
+			  handlers for now.
 
-            <A NAME="Jars"></A>
-            <LI><B>JARs of PLUGINS</B> -
-                Above I talked about scanning plugins in jar files. However
-              the Jar Class Loader I used is copyrighted code from the
-              <A HREF="http://www.javaworld.com">Javaworld</A>
-              site. I need to contact the author about how I can use it.
-              Until then, I don't think I will be including the Jar Class
-              Loading classes in this distribution. ResCaf&eacute; should
-              notice their absence and politely move along. To get around
-              this, just don't use jar archives of handlers for now.
-              <P>
-              <I>UPDATE</I>: The jar loader class skipping code does indeed run - assuming
-              the class in question has already been compiled.</P>
-              <P>
-              Unfortunately the JarLoader absence still makes compilation terminate.
-              So I have commented out that code. What you could do is go and grab the
-              classes from
-              <A HREF="http://www.javaworld.com">http://www.javaworld.com</A>
-              and try to hook them in, edit
-              <CODE>HandlerTable.java</CODE>,
-              and recompile to make this work.</P>
+			  <p>
+				<span style="font-style: italic">UPDATE</span>:
+				The jar loader class skipping code
+				does indeed run - assuming the class in question has
+				already been compiled.</p>
 
-              <P>
-              <I>UPDATE</I>: It looks like this feature is being added to the
-              standard Java distribution so I try to bring this back online soon...
-              </P>
+			  <p>Unfortunately the JarLoader absence still makes
+				compilation terminate. So I have commented out that
+				code. What you could do is go and grab the classes from
+				<a href="http://www.javaworld.com">http://www.javaworld.com</a>
+				and try to hook them in, edit
+				<code>HandlerTable.java</code>, and recompile to make
+				this work.</p>
 
-              </LI>
-            <P></P>
+			  <p>
+				<span style="font-style: italic">UPDATE</span>:
+				It looks like this feature is being
+				added to the standard Java distribution so I try to
+				bring this back online soon...</p>
+			</li>
+		  </ul>
+      </td>
+    </tr>
+  </table>
+  <!-- Linux Fun ====================================================== -->
+  <a name="Linux" id="Linux"></a>
 
-          </UL>
-          <BR>
-        </TD>
-      </TR>
-    </TABLE>
+  <table class="section">
+	<tr>
+      <td class="section_title">Linux and Mac Icons</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
 
-    <P><BR></P>
+    <tr>
+      <td class="content" colspan="2">
+        OK Penguinheads - this one is for you. You don't actually
+        need a Mac to use all the cool Mac format icons (and other
+        stuff) out there on the 'Net. I have figured out a
+        procedure for doing everything right on the good ole Linux
+        box:
 
-    <!-- Linux Fun ------------------------------------------------------ -->
-    <A NAME="Linux"></A>
-   <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077>
-          <IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Linux and Mac Icons
-                  </FONT></STRONG>
-        </TD>
+		  <ol>
+			<li>First you will need ResCaf&eacute; (well, duh)
+			  following the 
+			  <a href="#Requirements">Requirements section</a>
+			  above EXCEPT for requirement
+			  <span style="font-weight: bold">(4)</span> which
+			  is superceded here.</li>
 
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
+			<li>Next, because many of the Mac archives you will
+			  encounter on the 'Net are BinHexed (<code>*.hqx</code>),
+			  you will need the Linux BinHex - or rather
+			  <span style="font-weight: bold"><code>hexbin</code></span>
+			  - utility of the
+			  <span style="font-weight: bold">macutils</span>
+			  package, which probably came with your
+			  distro. If you can't find it
+			  (<code>% which hexbin</code>), check
+			  <a href="http://www.rpmfind.net/linux/RPM/macutils.html">RPMfind.net</a>
+			  or
+			  <a href="http://www.freshmeat.net">Freshmeat</a> for
+			  similar utilities.</li>
 
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-        OK Penguinheads - this one is for you. You don't actually need a Mac
-        to use all the cool Mac format icons (and other stuff) out there on
-        the 'Net. I have figured out a procedure for doing everything right
-        on the good ole Linux box:
-        <OL>
-           <LI> First you will need ResCaf&eacute; (well, duh) following the
-           <A HREF="#Requirements">Requirements section</A> above EXCEPT for
-           requirement <B>(4)</B> which is superceded here.
-           </LI>
+			<li>Now here is the linchpin: StuffIt. StuffIt is the
+			  standard, albeit proprietary, compression scheme for
+			  Macintosh. Once you have hexbin'ed a new file you will
+			  most likely encounter a StuffIt archive
+			  (<code>*.sit</code> or <code>*.sit.bin</code>) staring
+			  back at you. Fortunately, Aladdin has released a
+			  <a href="http://www.aladdinsys.com/expander/expander_linux_login.html">
+				Linux version of UnStuff</a> that will expand those
+			  files. Actually, this will take care of
+			  <span style="font-weight: bold">binhex decoding</span>
+			  as well - but I've always just used
+			  hexbin. Once installed, it is very important that you
+			  call unstuff like this:
 
-           <LI>Next, because many of the Mac archives you will encounter on
-           the 'Net are BinHexed (<CODE>*.hqx</CODE>), you will need the Linux
-           BinHex - or rather <B><CODE>hexbin</CODE></B> - utility of the 
-           <B>macutils</B> package, which probably came with your distro. 
-           If you can't find it (<CODE>% which hexbin</CODE>) , check
-           <A HREF="http://www.rpmfind.net/linux/RPM/macutils.html">RPMfind.net</A>
-           or
-           <A HREF="http://www.freshmeat.net">Freshmeat</A>
-           for similar utilities.
-           </LI>
+			  <p><code>% unstuff -m=on SomeMacArchive.sit</code></p>
+			  The <code>-m=on</code>
+			  switch will ensure preservation of the resource fork so
+			  that ResCaf&eacute; has something to read.
+			</li>
 
-           <LI>Now here is the linchpin: StuffIt. StuffIt is the standard,
-           albeit proprietary, compression scheme for Macintosh. Once you have
-           hexbin'ed a new file you will most likely encounter a StuffIt
-           archive (<CODE>*.sit</CODE> or  <CODE>*.sit.bin</CODE>) staring back
-           at you. Fortunately, Aladdin has released a
-<A HREF="http://www.aladdinsys.com/expander/expander_linux_login.html">Linux version of UnStuff</A>
-           that will expand those files. Actually, this will take care of
-           <B>binhex decoding</B> as well - but I've always just used hexbin.
-           Once installed, it is very important that you call unstuff
-           like this:
-           <P>
-           <CODE>% unstuff -m=on SomeMacArchive.sit</CODE>
-           </P>
-           The <CODE>-m=on</CODE> switch will ensure preservation of the
-           resource fork so that ResCaf&eacute; has something to read.<BR>
-           </LI>
+			<li>With this infrastructure in place, go to the best
+			  icon site on the 'Net:
+			  <a href="http://www.iconfactory.com">The IconFactory</a>.
+			  There
+			  you will find vast stores of (32 x 32) icons. Sometimes,
+			  you will see icon sets available for download in two
+			  formats, one of which is call an IconDropper pack. Always
+			  get this format when you can - it will make things a lot
+			  easier with ResCaf&eacute; since the icons are stored in
+			  a single file rather that one file per icon.
+			  Once you have
+			  a file, you can hexbin it, unstuff it, load it into
+			  ResCaf&eacute;, and extract the icons to XPM or PNG files
+			  (with transparency) for use with
+			  <a href="http://www.kde.org">KDE</a> or some other cool window
+			  manager!</li>
+		  </ol>
+      </td>
+    </tr>
+  </table>
+  <!-- Download ======================================================= -->
+  <a name="Download" id="Download"></a>
 
-           <LI> With this infrastructure in place, go to the best icon site
-           on the 'Net:
-           <A HREF="http://www.iconfactory.com">The IconFactory</A>.
-           There you will find vast stores of (32 x 32) icons. Sometimes, you
-           will see icon sets available for download in two formats, one of
-           which is call an IconDropper pack. Always get this format when you
-           can - it will make things a lot easier with ResCaf&eacute; since 
-           the icons are stored in a single file rather that one file per
-           icon. Another tip: I had trouble properly downloading
-           stuff from here with Netscape (come to think of it, I have a lot
-           of problems doing anything with Netscape...) so I usually open
-           another session for downloading with lynx. Once you have a file,
-           you can hexbin it, unstuff it, load it into ResCaf&eacute;, and
-           extract the icons to XPM or PNG files (with transparency) for use with
-           <A HREF="http://www.kde.org">KDE</A> or some other cool window
-           manager!
-           </LI>
+<table class="section">    <tr>
+      <td class="section_title">Download</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
 
+    <tr>
+      <td class="content" colspan="2">
+        <table>
+          <tr>
+            <td><a href="ResCafe1_4.tgz">Latest version</a></td>
+            <td>-</td>
+            <td><a href="ResCafe1_4.tgz">1.4</a></td>
+            <td>(325k)</td>
+            <td>-</td>
+            <td>includes compiled classes and source.</td>
+          </tr>
 
-<P>
+          <tr>
+            <td><a href="ResCafe1_3.tgz">Previous version</a></td>
+            <td>-</td>
+            <td><a href="ResCafe1_3.tgz">1.3</a></td>
+            <td>(256k)</td>
+            <td>-</td>
+            <td>includes compiled classes and source.</td>
+          </tr>
 
-          <BR><BR>
-        </TD>
-      </TR>
-    </TABLE>
+          <tr>
+            <td><a href="ResCafe1_2_5.tgz">Previous version</a></td>
+            <td>-</td>
+            <td><a href="ResCafe1_2_5.tgz">1.2.5</a></td>
+            <td>(265k)</td>
+            <td>-</td>
+            <td>includes compiled classes and source.</td>
+          </tr>
 
-    <P><BR></P>
+          <tr>
+            <td><a href="ResCafe1_2.tgz">Previous version</a></td>
+            <td>-</td>
+            <td><a href="ResCafe1_2.tgz">1.2</a></td>
+            <td>(237k)</td>
+            <td>-</td>
+            <td>includes compiled classes and source.</td>
+          </tr>
 
+          <tr>
+            <td><a href="ResCafe1_1.tgz">Previous version</a></td>
+            <td>-</td>
+            <td><a href="ResCafe1_1.tgz">1.1</a></td>
+            <td>(192k)</td>
+            <td>-</td>
+            <td>includes compiled classes and source.</td>
+          </tr>
 
+          <tr>
+            <td><a href="ResCafe1_0.tgz">Initial version</a></td>
+            <td>-</td>
+            <td><a href="ResCafe1_0.tgz">1.0</a></td>
+            <td>(144k)</td>
+            <td>-</td>
+            <td>includes compiled classes and source.</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  <!-- Random ======================================================= -->
+  <a name="Thanks" id="Thanks"></a>
 
-    <!-- Download ------------------------------------------------------- -->
-    <A NAME="Download"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Download
-                  </FONT></STRONG>
-        </TD>
+<table class="section">
+    <tr>
+      <td class="section_title">Acknowledgements</td>
+      <td class="toplink"><a href="#top">[top]</a></td>
+    </tr>
 
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-          
-        </TD>
-      </TR>
-      
-      <TR>
-        <TD BGCOLOR=#eeeeee COLSPAN=2>
-          <TABLE>
-             <TR>
-                <TD><A HREF="ResCafe1_4.tgz"> Latest version</A></TD>
-                <TD>-</TD>
-                <TD><A HREF="ResCafe1_4.tgz">1.4</A></TD>
-                <TD>(325k)</TD>
-                <TD>-</TD>
-                <TD>includes compiled classes and source.</TD>
-             </TR>
-             <TR>
-                <TD><A HREF="ResCafe1_3.tgz"> Previous version</A></TD>
-                <TD>-</TD>
-                <TD><A HREF="ResCafe1_3.tgz">1.3</A></TD>
-                <TD>(256k)</TD>
-                <TD>-</TD>
-                <TD>includes compiled classes and source.</TD>
-             </TR>
-             <TR>
-                <TD><A HREF="ResCafe1_2_5.tgz"> Previous version</A></TD>
-                <TD>-</TD>
-                <TD><A HREF="ResCafe1_2_5.tgz">1.2.5</A></TD>
-                <TD>(265k)</TD>
-                <TD>-</TD>
-                <TD>includes compiled classes and source.</TD>
-             </TR>
-             <TR>
-                <TD><A HREF="ResCafe1_2.tgz"> Previous Version</A></TD>
-                <TD>-</TD>
-                <TD><A HREF="ResCafe1_2.tgz">1.2</A></TD>
-                <TD>(237k)</TD>
-                <TD>-</TD>
-                <TD>includes compiled classes and source.</TD>
-             </TR>
-             <TR>
-                <TD><A HREF="ResCafe1_1.tgz"> Previous Version</A></TD>
-                <TD>-</TD>
-                <TD><A HREF="ResCafe1_1.tgz">1.1</A></TD>
-                <TD>(192k)</TD>
-                <TD>-</TD>
-                <TD>includes compiled classes and source.</TD>
-             </TR>
-             <TR>
-                <TD><A HREF="ResCafe1_0.tgz"> Initial version</A></TD>
-                <TD>-</TD>
-                <TD><A HREF="ResCafe1_0.tgz">1.0</A></TD>
-                <TD>(144k)</TD>
-                <TD> -</TD>
-                <TD>includes compiled classes and source.</TD>
-             </TR>
-          </TABLE>
-          <BR>
+    <tr>
+      <td class="content" colspan="2">
+        <ul>
+          <li>This work was inspired in large part by a C++ app
+          called
+			  <code>
+				<a href="http://www.cs.cmu.edu/%7Eajw/public/dist/macfork-1.0.tar.gz">macfork</a>
+			  </code>
+          by
+			  <a href="http://www-2.cs.cmu.edu/~ajw/">Andrew Willmott</a> &lt;
+			  <a href="mailto:ajw+macfork@cs.cmu.edu">ajw+macfork@cs.cmu.edu</a>&gt;
+			</li>
 
-        </TD>
-      </TR>
-    </TABLE>
+          <li>Special thanks go to 
+			  <a href="http://users.pandora.be/liontech/">Peter Stuer</a> &lt;
+			  <a href="mailto:Peter.Stuer@pandora.be">Peter.Stuer@pandora.be</a>&gt;
+          who explained the format of Mac 32-bit icons such as
+          <code>il32</code>, in particular the Run Length Encoded
+          (RLE) variety.</li>
 
-    <P></P>
+          <li>Thanks also go to Craig Hockenberry &lt;<a href=
+          "mailto:craig@iconfactory.com">craig@iconfactory.com</a>&gt;
+          of the <a href=
+          "http://www.iconfactory.com">IconFactory</a>, who was
+          good enough to answer my e-mail and refer me to
+          Peter.</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
 
-    <!-- Random ------------------------------------------------------- -->
-    <A NAME="Thanks"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Acknowledgements
-                  </FONT></STRONG>
-        </TD>
+  <div class="cvs">
+  $Id: index.html,v 1.6 2009-08-11 02:40:06 gbsmith Exp $
+  </div>
+	<p>
+      <a href="http://validator.w3.org/check?uri=referer">
+		<img style="border:0;width:88px;height:31px"
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+	  <a href="http://jigsaw.w3.org/css-validator/">
+		<img style="border:0;width:88px;height:31px"
+		  src="http://jigsaw.w3.org/css-validator/images/vcss" 
+		  alt="Valid CSS!" />
+	  </a>
+	</p>
 
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-        </TD>
-      </TR>
-      
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-          <UL>
-            <LI>
-            This work was inspired in large part by a C++ app called
-            <CODE>
-              <A HREF="http://www.cs.cmu.edu/~ajw/public/dist/macfork.tar.gz">macfork</A>
-            </CODE>
-            by Andrew Willmott
-            &lt;<A HREF="mailto:ajw+macfork@cs.cmu.edu">ajw+macfork@cs.cmu.edu</A>&gt;
-            <P>
-            <LI>Special thanks go to Peter Stuer
-             &lt;<A HREF="mailto:Peter.Stuer@pandora.be">Peter.Stuer@pandora.be</A>&gt;
-             who explained the format of Mac 32-bit icons such as
-             <CODE>il32</CODE>, in particular the Run Length Encoded (RLE) variety.
-            <P>
-            <LI>Thanks also go to Craig Hockenberry
-            &lt;<A HREF="mailto:craig@iconfactory.com">craig@iconfactory.com</A>&gt;
-            of the
-            <A HREF="http://www.iconfactory.com">IconFactory</A>,
-            who was good enough to answer my e-mail and refer me to Peter.
-          </UL>
-        </TD>
-      </TR>
-
-    </TABLE>
-
-    <!-- Random ------------------------------------------------------- -->
-    <!--
-    <A NAME="AnchorName"></A>
-    <TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=800>
-      <TR>
-        <TD BGCOLOR=#000077><IMG SRC="round_corner_left.gif">
-          <STRONG><FONT SIZE=4 COLOR=#ffffff FACE="Arial,Helvetica">
-                    Download
-                  </FONT></STRONG>
-        </TD>
-
-        <TD ALIGN=RIGHT BGCOLOR=#000077>
-          <A HREF="#top">
-            <FONT COLOR=#ffffff FACE="Arial,Helvetica">[top]</FONT>
-          </A>
-        </TD>
-      </TR>
-      
-      <TR>
-        <TD BGCOLOR=#eeeeee  COLSPAN=2>
-        </TD>
-      </TR>
-
-    </TABLE>
-    -->
-
-    <!-- ---------------------------------------------------------------- -->
-    <HR SIZE=3>
-    <I>$Id: index.html,v 1.4 2000/12/12 21:09:54 gbsmith Exp $</I>
-
-  </BODY>
-</HTML>
+</body>
+</html>

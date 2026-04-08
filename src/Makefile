@@ -8,8 +8,8 @@
 .SUFFIXES: .class .java .jar
 
 
-#JAVAC = javac
-JAVAC=jikes
+JAVAC = javac
+#JAVAC=jikes
 
 APPCLASSES=ResourceManager Colors Jarload Handlers \
 	FilePicker.class JFilePicker.class \

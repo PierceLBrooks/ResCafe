@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/ResCafe/ResCafe1.4/src/ResourceManager/RCS/Resource.java,v 1.3 1999/10/21 23:47:36 gbsmith Exp $ */
+/* $Header: /home/cvsroot/ResCafe/src/ResourceManager/Resource.java,v 1.4 2009-08-11 02:36:10 gbsmith Exp $ */
 
 package ResourceManager;
 
@@ -9,6 +9,9 @@ import java.io.RandomAccessFile;
 /*=======================================================================*/
 /*
  * $Log: Resource.java,v $
+ * Revision 1.4  2009-08-11 02:36:10  gbsmith
+ * Changed to MIT License
+ *
  * Revision 1.3  1999/10/21 23:47:36  gbsmith
  * Added Copyright notice.
  *
@@ -23,7 +26,28 @@ import java.io.RandomAccessFile;
  */
 
 /*=======================================================================*/
-/* Copyright (c) 1999 by G. Brannon Smith -- All Rights Reserved         */
+/* The MIT License
+
+Copyright (c) 1999-2009 by G. Brannon Smith
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 /*=======================================================================*/
 
 /*=======================================================================*/
@@ -44,7 +68,7 @@ public class Resource
    byte data[];
 
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: Resource.java,v 1.3 1999/10/21 23:47:36 gbsmith Exp $";
+   static final String rcsid = "$Id: Resource.java,v 1.4 2009-08-11 02:36:10 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    void readInfo(RandomAccessFile inraf) throws IOException
