@@ -27,8 +27,7 @@ In any case the key parts are:
 4) The save() method asks the plugin to write the Resources as it sees fit
    in the given directory.
 
-5) The about() method lets the plugin return some info about itself in
-   the form of a String[].
+5) The about() method lets the plugin return some info about itself.
 
 The plugin will also be given the main ResourceModel object i.e. ALL the
 Resources. This is so the plugin can request Resources of additional
@@ -38,6 +37,7 @@ types altogether, such as various types of Icons.
 
 Hopefully the basic included Handlers will offer a good enough example to
 get you started. For some reason they always use JTable ;-)
+
 
 Someone want to write plugins for:
    cicn <-- well I did figure out something - don't know how good it is

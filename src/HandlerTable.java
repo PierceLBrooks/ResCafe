@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/HandlerTable.java,v 1.7 1999/10/22 04:16:32 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $ */
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,6 +17,10 @@ import java.util.zip.ZipFile;
 /*=======================================================================*/
 /*
  * $Log: HandlerTable.java,v $
+ * Revision 1.8  1999/10/27 07:15:38  gbsmith
+ * Implemented Runnable interface so loading can be put in a thread.
+ * Also synchronized build method so only one thread can change it.
+ *
  * Revision 1.7  1999/10/22 04:16:32  gbsmith
  * Took Jar class loading BACK out until I can be sure of permission
  * to distribute required classes.
@@ -47,7 +51,7 @@ import java.util.zip.ZipFile;
 /*=======================================================================*/
 
 /*=======================================================================*/
-class HandlerTable
+class HandlerTable implements Runnable
 {
    /*--- Data -----------------------------------------------------------*/
    private Hashtable handlerData;
@@ -57,7 +61,7 @@ class HandlerTable
    private boolean VERBOSE = true;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.7 1999/10/22 04:16:32 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public HandlerTable()
@@ -77,8 +81,18 @@ class HandlerTable
    }
 
    /*--------------------------------------------------------------------*/
-   void build()
+   public void run()
    {
+      build();  
+   }
+
+   /*--------------------------------------------------------------------*/
+   synchronized void build()
+   {
+      /* 
+         This seems like a lot to synchronize but we really only want
+         one thread messing with (esp. rebuilding) the table at a time
+       */
       File pluginDir = new File( plugDirName );
       if(VERBOSE) System.out.println("");
       if(pluginDir.isDirectory()) processDirectory(pluginDir);
@@ -393,7 +407,7 @@ class HandlerTable
 class ClassFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.7 1999/10/22 04:16:32 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -409,7 +423,7 @@ class ClassFileFilter implements FilenameFilter
 class DirFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.7 1999/10/22 04:16:32 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -424,7 +438,7 @@ class DirFilter implements FilenameFilter
 class JarFileFilter implements FilenameFilter
 {
    /*--- RCS ------------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.7 1999/10/22 04:16:32 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public boolean accept(File dir, String name)
@@ -447,7 +461,7 @@ class SubdirClassLoader extends ClassLoader
    File searchdir;
 
    /*----- RCS ----------------------------------------------------------*/
-   static final String rcsid = "$Id: HandlerTable.java,v 1.7 1999/10/22 04:16:32 gbsmith Exp $";
+   static final String rcsid = "$Id: HandlerTable.java,v 1.8 1999/10/27 07:15:38 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public SubdirClassLoader( File indir )

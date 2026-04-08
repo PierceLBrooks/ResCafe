@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/MacBinaryHeader.java,v 1.3 1999/10/21 22:55:19 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/MacBinaryHeader.java,v 1.3 1999/10/21 22:55:19 gbsmith Exp $ */
 
 import java.io.IOException;
 import java.io.PrintStream;

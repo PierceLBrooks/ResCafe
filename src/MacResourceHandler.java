@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/MacResourceHandler.java,v 1.5 1999/10/21 23:01:38 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/MacResourceHandler.java,v 1.5 1999/10/21 23:01:38 gbsmith Exp $ */
 
 import javax.swing.JPanel;
 

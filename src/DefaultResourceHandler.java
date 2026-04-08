@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/DefaultResourceHandler.java,v 1.3 1999/10/13 23:35:14 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/DefaultResourceHandler.java,v 1.3 1999/10/13 23:35:14 gbsmith Exp $ */
 
 import javax.swing.*;
 import javax.swing.table.*;

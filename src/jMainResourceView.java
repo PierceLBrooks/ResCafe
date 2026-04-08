@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/jMainResourceView.java,v 1.8 1999/10/21 23:44:26 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_devel/src/RCS/jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $ */
 
 import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
 
@@ -10,12 +10,14 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.KeyStroke;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -23,9 +25,11 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Event;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -41,6 +45,24 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: jMainResourceView.java,v $
+ * Revision 1.12  1999/10/28 20:30:28  gbsmith
+ * Changed version number to 1.1
+ *
+ * Revision 1.11  1999/10/28 04:40:59  gbsmith
+ * Fixed 'Close' accelerator and added check box for current doc
+ * in menu.
+ *
+ * Revision 1.10  1999/10/28 03:56:46  gbsmith
+ * Changed to support loading of multiple files:
+ *    - Major data struct is now DocumentManager
+ *    - Added 'Documents' menu for switching between them
+ *    - Changed update method to support all this
+ *
+ * Revision 1.9  1999/10/27 07:13:19  gbsmith
+ * Spun off icon management to a subclass to facilitate threaded
+ * loading. Merged type display menu items into a single toggled item.
+ * Added menu accelerators and mnemonics.
+ *
  * Revision 1.8  1999/10/21 23:44:26  gbsmith
  * Added Copyright notice. Made class imports more explicit.
  * Changed setFileController code a little.
@@ -86,9 +108,10 @@ public class jMainResourceView extends JFrame implements Observer
    /*------ GUI ---------------------------------------------------------*/
    // Menu stuff
    JMenuBar mbar;
-   JMenu fileMenu, typeMenu, handlerMenu, helpMenu;
-   JMenuItem openItem, saveAllItem, saveHandledItem, saveCurrentItem, quitItem;
-   JMenuItem showAllItem, showHandledItem;
+   JMenu fileMenu, typeMenu, handlerMenu, docMenu, helpMenu;
+   JMenuItem openItem, saveAllItem, saveHandledItem, saveCurrentItem,
+      closeItem, closeAllItem, quitItem;
+   JMenuItem typeItem;
    JMenuItem rescanItem, listTypeItem, listHandlerItem;
    JMenuItem aboutAppItem, aboutPlugItem;
 
@@ -102,21 +125,27 @@ public class jMainResourceView extends JFrame implements Observer
 
    MacResourceHandler currentHandler;
    String currentType;
-   Hashtable icons;
 
    /*------ Models --------------------------------------------------------*/
-   ResourceModel resmod;
-   HandlerTable handlers;
+   ResourceModel currentResMod;
+   DocumentManager docmgr;
+
+   HandlerTable handlers; // Not observables but we'll call
+   IconTable icons;       // them models anyway
 
    /*------ Controllers ---------------------------------------------------*/
    FileController     flistener;
    WindowController   locWinListener;
    MenuItemController locMenuListener;
+   DocMenuItemController locDocMenuListener;
    TypeListController locListListener;
+
+   /*------ Misc ----------------------------------------------------------*/   
+   Thread iconThread, handlerThread; // for loading the icons, handlers 
 
    /*------ RCS -----------------------------------------------------------*/
    static final String rcsid =
-   "$Id: jMainResourceView.java,v 1.8 1999/10/21 23:44:26 gbsmith Exp $";
+   "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
 
    /*--- Methods ----------------------------------------------------------*/
    public jMainResourceView(String frameTitle)
@@ -124,42 +153,90 @@ public class jMainResourceView extends JFrame implements Observer
       super(frameTitle);
       Container contentPane = getContentPane();
 
+      /* Load type icons with a thread ------------------------------------*/
+      icons = new IconTable("icons");
+      iconThread = new Thread(icons);
+      iconThread.start();
+
       /* Set up menubar and menus -----------------------------------------*/
       mbar = new JMenuBar();
 
       /*-------------------------------------------------------------------*/
       fileMenu = new JMenu("File", true);
+      fileMenu.setMnemonic('F');
       /*-------------------------------------------------------------------*/
-      fileMenu.add(openItem        = new JMenuItem("Open..."));
-      fileMenu.add(saveAllItem     = new JMenuItem("Save All"));
-      fileMenu.add(saveHandledItem = new JMenuItem("Save Handled"));
-      fileMenu.add(saveCurrentItem = new JMenuItem("Save Current"));
-      fileMenu.addSeparator();
-      fileMenu.add(quitItem        = new JMenuItem("Quit"));
+      fileMenu.add(openItem        = new JMenuItem("Open...", 'O'));
+      openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
+                                                     Event.CTRL_MASK));
+
+      fileMenu.add(saveCurrentItem = new JMenuItem("Save Current...", 'S'));
+      saveCurrentItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
+                                                     Event.CTRL_MASK));
+
+      fileMenu.add(saveHandledItem = new JMenuItem("Save Handled...", 'H'));
+      saveHandledItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H,
+                                                     Event.CTRL_MASK));
+
+      fileMenu.add(saveAllItem     = new JMenuItem("Save All...", 'A'));
+      saveAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
+                                                     Event.CTRL_MASK));
+
+      fileMenu.add(closeItem = new JMenuItem("Close", 'C'));
+      closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
+                                                      Event.CTRL_MASK));
+
+      fileMenu.add(closeAllItem = new JMenuItem("Close All"));
+
+      fileMenu.addSeparator(); /*------------------------------------------*/
+
+      fileMenu.add(quitItem        = new JMenuItem("Quit", 'Q'));
+      quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+                                                     Event.CTRL_MASK));
 
       /*-------------------------------------------------------------------*/
       typeMenu = new JMenu("Type", true);
+      typeMenu.setMnemonic('T');
       /*-------------------------------------------------------------------*/
-      typeMenu.add(showAllItem     = new JMenuItem("Show All Types"));
-      typeMenu.add(showHandledItem = new JMenuItem("Show Handled Types"));
+      typeMenu.add(typeItem = new JMenuItem("Show Handled Types", 'T'));
+      typeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
+                                                     Event.CTRL_MASK));
 
       /*-------------------------------------------------------------------*/
       handlerMenu = new JMenu("Handlers", true);
+      handlerMenu.setMnemonic('a');
       /*-------------------------------------------------------------------*/
-      handlerMenu.add(rescanItem   = new JMenuItem("Rescan Handlers"));
-      handlerMenu.add(listHandlerItem = new JMenuItem("List Handlers by Type"));
-      handlerMenu.add(listTypeItem = new JMenuItem("List Types by Handler"));
+      handlerMenu.add(rescanItem   = new JMenuItem("Rescan Handlers", 'R'));
+      rescanItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
+                                                     Event.CTRL_MASK));
+
+      handlerMenu.add(listHandlerItem = new JMenuItem("List Handlers by Type", 'H'));
+      handlerMenu.add(listTypeItem = new JMenuItem("List Types by Handler", 'T'));
       // These names and descriptions can be confusing
 
       /*-------------------------------------------------------------------*/
-      helpMenu = new JMenu("Help", true);
+      docMenu = new JMenu("Documents", true);
+      docMenu.setMnemonic('d');
       /*-------------------------------------------------------------------*/
-      helpMenu.add(aboutAppItem  = new JMenuItem("About ResCafé"));
-      helpMenu.add(aboutPlugItem = new JMenuItem("About Plugin"));
+      // Will dynamically
+      // list open docs here
+      // 
+
+      /*-------------------------------------------------------------------*/
+      helpMenu = new JMenu("Help", true);
+      helpMenu.setMnemonic('H');
+      /*-------------------------------------------------------------------*/
+      helpMenu.add(aboutAppItem  = new JMenuItem("About ResCafé", 'R'));
+      aboutAppItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH,
+                                                         Event.CTRL_MASK));
+
+      helpMenu.add(aboutPlugItem = new JMenuItem("About Plugin", 'P'));
+      aboutPlugItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,
+                                                         Event.CTRL_MASK));
 
       mbar.add(fileMenu);
       mbar.add(typeMenu);
       mbar.add(handlerMenu);
+      mbar.add(docMenu);
       mbar.add(helpMenu); // Wish this could go at extreme right of MenuBar...
 
       setJMenuBar(mbar);
@@ -211,11 +288,12 @@ public class jMainResourceView extends JFrame implements Observer
       contentPane.add(filePanel, "South");
 
       /* Setup event listeners local to this view -------------------------*/
+      locDocMenuListener = new DocMenuItemController();
+
       locMenuListener = new MenuItemController();
       quitItem.addActionListener(locMenuListener);
 
-      showAllItem.addActionListener(locMenuListener);
-      showHandledItem.addActionListener(locMenuListener);
+      typeItem.addActionListener(locMenuListener);
 
       rescanItem.addActionListener(locMenuListener);
       listHandlerItem.addActionListener(locMenuListener);
@@ -233,16 +311,16 @@ public class jMainResourceView extends JFrame implements Observer
       /* Reset split pane to nicer proportions ----------------------------*/
       jsp.setDividerLocation(jsp.getMinimumDividerLocation());
 
-      loadImages();
       currentHandler = null;
       currentType    = null;
    }
 
-   /*--------------------------------------------------------------------*/
-   public void setResModel(ResourceModel inmod)
+   /*----------------------------------------------------------------------*/
+   public void setDocManager(DocumentManager inmgr)
    {
-      resmod = inmod;
-      resmod.addObserver(this);
+      docmgr = inmgr;
+      docmgr.addObserver(this);
+      rebuildDocMenu();
    }
 
    /*--------------------------------------------------------------------*/
@@ -265,6 +343,8 @@ public class jMainResourceView extends JFrame implements Observer
          saveAllItem.removeActionListener(flistener);
          saveHandledItem.removeActionListener(flistener);
          saveCurrentItem.removeActionListener(flistener);
+         closeItem.removeActionListener(flistener);
+         closeAllItem.removeActionListener(flistener);
       }
 
       flistener = infc;
@@ -273,6 +353,8 @@ public class jMainResourceView extends JFrame implements Observer
       saveAllItem.addActionListener(flistener);
       saveHandledItem.addActionListener(flistener);
       saveCurrentItem.addActionListener(flistener);
+      closeItem.addActionListener(flistener);
+      closeAllItem.addActionListener(flistener);
 
       flistener.setCurrentType( null );
    }
@@ -286,14 +368,63 @@ public class jMainResourceView extends JFrame implements Observer
    /*--------------------------------------------------------------------*/
    public void update(Observable o, Object arg)
    {
-      fnlab.setText(resmod.getFilename());
+      ResourceModel tmpResMod = docmgr.getCurrent();
+      if(tmpResMod == currentResMod) return; // No real change
+      
+      currentResMod = tmpResMod;
+
+      resetView();
+
+      // Be sure all the icons are loaded
+      try
+      {
+         iconThread.join();
+      } catch (InterruptedException intex) {
+         System.err.println("ERROR loading icons: " + intex);
+      }
+      
+      rebuildDocMenu();
+
+      if(currentResMod != null) showAllTypes();
+   }
+
+   /*--------------------------------------------------------------------*/
+   void resetView()
+   {
+      if(currentResMod == null) fnlab.setText("*no file loaded*");
+      else                      fnlab.setText(currentResMod.getFilename());
 
       // Clean out old display
       if(currentHandler != null) handlerPanel.remove(currentHandler);
       currentHandler = null;
       if(flistener != null) flistener.setCurrentType(null);
 
-      showAllTypes();
+      // Excessive way to clear
+      myTypeList.setModel(new MacResTypeListModel(icons));
+
+      repaint();
+   }
+   
+         
+   /*--------------------------------------------------------------------*/
+   void rebuildDocMenu()
+   {
+      String[] docs = docmgr.listDocuments();
+      String currentDoc = docmgr.getCurrentName();
+      JMenuItem docItem;
+      docMenu.removeAll();
+      locDocMenuListener = new DocMenuItemController();
+
+      for(int i = 0; i < docs.length; i++)
+      {
+         if(docs[i].compareTo(currentDoc) == 0)
+            docItem = new JCheckBoxMenuItem(docs[i], true);
+         else
+            docItem = new JMenuItem(docs[i]);
+
+         docItem.addActionListener(locDocMenuListener);
+         docMenu.add(docItem);
+      }
    }
 
    /*--------------------------------------------------------------------*/
@@ -303,7 +434,7 @@ public class jMainResourceView extends JFrame implements Observer
       ListCellRenderer renderer = new MacResTypeListCellRenderer();
       String s;
 
-      Enumeration typeKeys = resmod.getTypes();
+      Enumeration typeKeys = currentResMod.getTypes();
       if(typeKeys == null) return;
       while( typeKeys.hasMoreElements() )
       {
@@ -313,6 +444,11 @@ public class jMainResourceView extends JFrame implements Observer
 
       myTypeList.setModel(tmpModel);
       myTypeList.setCellRenderer(renderer);
+
+      // Ready menu for next selection
+      typeItem.setText("Show Handled Types");
+      typeItem.setMnemonic('H');
+
       repaint();
    }
 
@@ -323,7 +459,7 @@ public class jMainResourceView extends JFrame implements Observer
       ListCellRenderer renderer = new MacResTypeListCellRenderer();
       String s;
 
-      Enumeration typeKeys = resmod.getTypes();
+      Enumeration typeKeys = currentResMod.getTypes();
       if(typeKeys == null) return;
       while( typeKeys.hasMoreElements() )
       {
@@ -334,34 +470,12 @@ public class jMainResourceView extends JFrame implements Observer
 
       myTypeList.setModel(tmpModel);
       myTypeList.setCellRenderer(renderer);
+
+      // Ready menu for next selection
+      typeItem.setText("Show All Types");
+      typeItem.setMnemonic('A');
+
       repaint();
-   }
-
-   /*--------------------------------------------------------------------*/
-   private void loadImages()
-   {
-      icons = new Hashtable();
-
-      String icon_dirname = "icons";
-      String icon_filenames[];
-      String icontype;
-      File   icondir = new File(icon_dirname);
-
-      // Get file list - assume everything in dir is an image
-      icon_filenames = icondir.list();
-
-      // Load them and put into hash
-      for(int i = 0; i < icon_filenames.length; i++)
-      {
-         icontype =
-            icon_filenames[i].substring(0, icon_filenames[i].lastIndexOf('.'));
-         icontype = icontype.replace('_', ' '); // Interpret underscores as spaces
-         //System.out.println("Got icon for type \"" + icontype + "\"");
-
-         icons.put(icontype,
-                   new ImageIcon(Jimi.getImage(
-                      icon_dirname + "/" + icon_filenames[i])));
-      }
    }
 
 
@@ -399,19 +513,19 @@ public class jMainResourceView extends JFrame implements Observer
          } catch (Exception e) {
             System.err.println(e);
          }
-         handlerLab.setText("" + resmod.getCountOfType(currentType) +
+         handlerLab.setText("" + currentResMod.getCountOfType(currentType) +
                             " resources of type \'" + currentType +
                             "\' handled by " +
                             currentHandler.getClass().getName());
       } else {
          currentHandler = new DefaultResourceHandler();
-         handlerLab.setText("" + resmod.getCountOfType(currentType) +
+         handlerLab.setText("" + currentResMod.getCountOfType(currentType) +
                             " resources of type \'" + currentType +
                             "\' handled by Default Handler");
       }
 
-      currentHandler.setResData(resmod.getResourceType(currentType));
-      currentHandler.setResModel(resmod);
+      currentHandler.setResData(currentResMod.getResourceType(currentType));
+      currentHandler.setResModel(currentResMod);
       currentHandler.init();
       currentHandler.display();
       handlerPanel.add(currentHandler, "Center");
@@ -429,7 +543,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       JOptionPane jop = new JOptionPane();
       String message[] = {
-         "ResCafé v1.0",
+         "ResCafé v1.1",
          "by G. Brannon Smith <brannonsmith@yahoo.com>",
          " ",
          "A Java app for rendering and extracting data",
@@ -503,16 +617,26 @@ public class jMainResourceView extends JFrame implements Observer
       // Local because it only affects aspects of the local display:
       // *** HOWEVER, perhaps quit portion should not be local
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.8 1999/10/21 23:44:26 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void actionPerformed(ActionEvent event)
       {
          JMenuItem item = (JMenuItem)event.getSource();
          if     (item == quitItem)        doQuit();
-         else if(item == showAllItem)     showAllTypes();
-         else if(item == showHandledItem) showHandledTypes();
-         else if(item == rescanItem)      handlers.build();
+         else if(item == typeItem)
+         {
+            if(typeItem.getText().compareTo("Show All Types") == 0)
+               showAllTypes();
+            else 
+               showHandledTypes();
+         } 
+
+         else if(item == rescanItem)
+         {
+            handlerThread = new Thread(handlers);
+            handlerThread.start();
+         }        
 
          // Currently only console versions - not windows
          else if(item == listHandlerItem) handlers.listHandlersbyType();
@@ -525,13 +649,28 @@ public class jMainResourceView extends JFrame implements Observer
    }
 
    /*====================================================================*/
+   class DocMenuItemController implements ActionListener
+   {
+      // Local because it only affects what ResourceModel is VIEWED
+      /*------ RCS ---------------------------------------------------------*/
+      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
+
+      /*--------------------------------------------------------------------*/
+      public void actionPerformed(ActionEvent ae)
+      {
+         String command = ae.getActionCommand();
+         docmgr.choose(command);
+      }
+   }
+
+   /*====================================================================*/
    class TypeListController implements ListSelectionListener
    {
       // Local because it only affects position of scroller
       // Detects clicks in the Type List and displays resources of that type
 
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.8 1999/10/21 23:44:26 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void valueChanged(ListSelectionEvent lse)
@@ -550,7 +689,7 @@ public class jMainResourceView extends JFrame implements Observer
    {
       // *** Perhaps this shouldn't be local after all
       /*------ RCS ---------------------------------------------------------*/
-      final String rcsid = "$Id: jMainResourceView.java,v 1.8 1999/10/21 23:44:26 gbsmith Exp $";
+      final String rcsid = "$Id: jMainResourceView.java,v 1.12 1999/10/28 20:30:28 gbsmith Exp $";
 
       /*--------------------------------------------------------------------*/
       public void windowClosing(WindowEvent event)

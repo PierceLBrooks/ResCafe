@@ -1,6 +1,6 @@
 ResCafé Installation Notes
 by G. Brannon Smith <brannonsmith@yahoo.com>
-21 Oct 1999
+13 Oct 1999
 
 DISCLAIMER
 
@@ -13,15 +13,13 @@ OK, kinda jerky though.
 REQUIREMENTS
 
 1. Java 1.1 or better - available from http://java.sun.com/
-                                   or  http://www.blackdown.org (Linux) 
-                                   or perhaps others...
 
-2. Swing classes - also available from the above sources
+2. Swing classes - also available from http://java.sun.com/
 
 3. JIMI classes
    these are a set of Image I/O classes for Java - pretty cool...
    Last seen (Oct 1999) at http://java.sun.com/products/jimi
-   (NOTE: the distribution I downloaded was pretty big, >3MB,
+   (NOTE: the distribution I downloaded was pretty big - >3MB
     but the zip file of classes actually needed is much smaller -
     about 450K. Maybe there is a smaller distro that I missed)
 
@@ -29,8 +27,8 @@ REQUIREMENTS
    file. I use `macsave` from the macutils suite on my Linux box.
    I don't know what else is available.
 
-   UPDATE: I managed to figure out the MacBinary format enough to
-   be able to locate the Resource Fork. So you should be able to
+UPDATE: I managed to figure out the MacBinary format enough to be
+   able to locate the Resource Fork. So you should be able to
    load extracted Resource Forks OR full MacBinary files.
 
 I think that's it...
@@ -41,13 +39,6 @@ INSTALLATION
 1. Unpack the archive (I guess you already did).
 2. Edit `ResCafe.sh` and fix the class locations, like where JIMI is. Make
    sure the ResCafe.jar file and the plugins directory are in CLASSPATH.
-   (If you want to compile, you will have to make similar changes to
-    the main Makefile)
-
-   You might have to make some more serious edits if your JVM
-   complains. Under Solaris I seem to have to explicitly give `java`
-   the CLASSPATH with a -cp or -classpath option. 
-
 3. Make sure ResCafe.sh, ResCafe.jar, plugins and icons are under the same
    directory:
 
@@ -59,7 +50,7 @@ ResCafe.sh   ResCafe.jar   plugins   icons
                               |  
             +-----------------+-----------------+
             |                 |                 |
-    SomeHandler.class    AnotherOne/     *YetAnother.jar* - in devel
+    SomeHandler.class    AnotherOne/      YetAnother.jar
                               |
                 +-------------+----------+
                 |                        |
@@ -70,24 +61,21 @@ PLUGINS
 Also notice you can dump plugins right in the plugins dir, put them in their
 own subdirs with additional classes they may need, or stuff them in jar
 files (again with their helper classes). I'd be careful with this last one -
-I just got it working and I don't know how well it works. 
-
-UPDATE: See below...
+I just got it working and I don't know how well it works.
 
 That should be it... if you have a better setup, let me know. Again,
 ResCafe.sh is a shell script. If you can't use shell scripts, you'll have to
 come up with something else, like a .bat or whatever you're platform uses.
 
-
 ICONS
 
-HEY! WHERE ARE ALL THE *Icons*?
+Hey! Where are all the icons?
 
 Well, the best icons to use are the ones from ResEdit, but I'm not going
 to redistribute them. I suppose you could get a copy of ResEdit and
 extract the icons from there with some tool - a tool that could read the
 Resource Fork of ResEdit, display the icons therein, and save them. Maybe
-I'll write one - and call it ResCafé...hmmm...
+I'll write one - and call it ResCafé!
 
 Of course, some cool custom icons might be better still.
 
@@ -98,12 +86,4 @@ Loader I used is copyrighted code from the Javaworld site. I need to contact
 the author about how I can use it. Until then, I don't think I will be
 including the Jar Class Loading classes in this distribution. ResCafé should
 notice their absence and politely move along. To get around this, just don't
-use jar archives of handlers for now.
-
-UPDATE: The jar loader class skipping code does indeed run - assuming
-the class in question has already been compiled.
-
-Unfortunately the JarLoader absence still makes compilation terminate.
-So I have commented out that code. What you could do is go and grab the
-classes from http://www.javaworld.com and try to hook them in, edit
-HandlerTable.java, and recompile to make this work.
+use jar archives of handler for now.

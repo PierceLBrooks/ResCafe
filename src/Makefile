@@ -12,9 +12,11 @@ JAVAC = javac
 
 APPCLASSES=ResourceManager Colors Jarload Handlers \
 	FilePicker.class JFilePicker.class \
-        MacBinaryHeader.class FileController.class \
-	MacResTypeListModel.class jMainResourceView.class \
-	ResCafe.class
+        MacBinaryHeader.class \
+	DocumentManager.class \
+	FileController.class \
+	MacResTypeListModel.class IconTable.class \
+	jMainResourceView.class ResCafe.class
 
 PLUGINS=MacResourceHandler.class \
 	CURSResourceHandler.class \

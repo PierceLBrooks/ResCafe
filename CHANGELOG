@@ -1,0 +1,17 @@
+ResCafe Change Log
+==================
+
+1.0.1 -> 1.1
+---------------
+More radical changes. Added support for multiple open documents using the
+new DocumentManager class. Open docs are accessible through a new
+Documents menu.
+
+1.0 -> 1.01      (NOTE: Unreleased)
+---------------
+Put icon loading and plugin scanning into Java Threads. The result is 
+faster start up. Also added menu shortcuts and mnemonics.
+
+0 -> 1.0
+---------------
+Initial Release

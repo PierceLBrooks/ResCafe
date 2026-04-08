@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/plugins/RCS/ics_maskResourceHandler.java,v 1.3 1999/10/21 22:18:23 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/ics_maskResourceHandler.java,v 1.3 1999/10/21 22:18:23 gbsmith Exp $ */
 
 import com.sun.jimi.core.Jimi; // JIMI - tools for image I/O
 

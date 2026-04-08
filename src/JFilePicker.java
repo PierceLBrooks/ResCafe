@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/JFilePicker.java,v 1.3 1999/10/21 22:49:11 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/JFilePicker.java,v 1.4 1999/10/28 04:00:42 gbsmith Exp $ */
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -11,6 +11,9 @@ import java.awt.Frame;
 /*=======================================================================*/
 /*
  * $Log: JFilePicker.java,v $
+ * Revision 1.4  1999/10/28 04:00:42  gbsmith
+ * Added tellFileLoaded() method.
+ *
  * Revision 1.3  1999/10/21 22:49:11  gbsmith
  * Added Copyright notice.
  *
@@ -35,7 +38,7 @@ class JFilePicker implements FilePicker
    Dialog msgdialog;
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: JFilePicker.java,v 1.3 1999/10/21 22:49:11 gbsmith Exp $";
+   static final String rcsid = "$Id: JFilePicker.java,v 1.4 1999/10/28 04:00:42 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    JFilePicker()
@@ -187,6 +190,20 @@ class JFilePicker implements FilePicker
          null,     // Parent
          message,
          "File Does Not Exist",
+         JOptionPane.ERROR_MESSAGE
+         );
+   }
+
+   /*--------------------------------------------------------------------*/
+   public void tellFileLoaded( String filename )
+   {
+      String message =  new String("The file \'" + filename +
+                                   "\' is already loaded!");
+
+      jop.showMessageDialog(
+         null,     // Parent
+         message,
+         "File Already Loaded",
          JOptionPane.ERROR_MESSAGE
          );
    }

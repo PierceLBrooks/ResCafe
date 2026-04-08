@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/plugins/RCS/ics4ResourceHandler.java,v 1.2 1999/10/21 22:13:27 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/ics4ResourceHandler.java,v 1.2 1999/10/21 22:13:27 gbsmith Exp $ */
 
 import javax.swing.JList;
 import javax.swing.JScrollPane;

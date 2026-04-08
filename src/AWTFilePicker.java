@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/AWTFilePicker.java,v 1.2 1999/10/21 20:34:42 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/AWTFilePicker.java,v 1.2 1999/10/21 20:34:42 gbsmith Exp $ */
 
 import java.awt.Dialog;
 import java.awt.FileDialog;

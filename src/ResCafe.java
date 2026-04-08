@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/ResCafe.java,v 1.4 1999/10/21 23:08:54 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/ResCafe.java,v 1.6 1999/10/28 04:01:33 gbsmith Exp $ */
 
 import java.awt.Dialog;
 import java.awt.Image;
@@ -13,6 +13,12 @@ import ResourceManager.*;
 /*=======================================================================*/
 /*
  * $Log: ResCafe.java,v $
+ * Revision 1.6  1999/10/28 04:01:33  gbsmith
+ * Changed to support DocumentManager vs. one ResourceModel.
+ *
+ * Revision 1.5  1999/10/27 07:18:31  gbsmith
+ * Put handler loading into a thread
+ *
  * Revision 1.4  1999/10/21 23:08:54  gbsmith
  * Added Copyright notice.
  *
@@ -37,12 +43,12 @@ public class ResCafe
 {
    /*--- Data -----------------------------------------------------------*/
    jMainResourceView myview;
-   ResourceModel     myresmod;
+   DocumentManager   mydocmgr;
    HandlerTable      myhandlers;
    FileController    myfctrl;
 
    /*------ RCS ---------------------------------------------------------*/
-   static final String rcsid = "$Id: ResCafe.java,v 1.4 1999/10/21 23:08:54 gbsmith Exp $";
+   static final String rcsid = "$Id: ResCafe.java,v 1.6 1999/10/28 04:01:33 gbsmith Exp $";
 
    /*--- Methods --------------------------------------------------------*/
    public static void main( String args[] )
@@ -50,29 +56,32 @@ public class ResCafe
       ResCafe app = new ResCafe();
 
       // Load a file if given a name
-      if(args.length > 0) app.myfctrl.loadFile(new File(args[0]));
+      if(args.length > 0) app.mydocmgr.load(new File(args[0]));
    }
 
    /*--------------------------------------------------------------------*/
    public ResCafe()
    {
-      myresmod   = new ResourceModel();
+      mydocmgr   = new DocumentManager();
       myfctrl    = new FileController();
       myhandlers = new HandlerTable();
-      myhandlers.build();
+
+      // Load handlers in own thread
+      Thread handlerThread = new Thread(myhandlers);
+      handlerThread.start();
 
       // Attach parts to View
       myview  = new jMainResourceView("ResCafé Resource Extractor");
-      myview.setResModel(myresmod);
+      myview.setDocManager(mydocmgr);
       myview.setHandlers(myhandlers);
       myview.setFileController(myfctrl);
 
       // Attach parts to Controller
       myfctrl.setView(myview);
-      myfctrl.setResModel(myresmod);
-      myfctrl.setHandlers(myhandlers);
+      myfctrl.setDocManager(mydocmgr);
 
-      // Model is taken care of inside its Observers
+      // Attach parts to Doc Manager
+      mydocmgr.setHandlers(myhandlers);
 
       // Show the view... and begin
       myview.setLocation( 75, 75 );

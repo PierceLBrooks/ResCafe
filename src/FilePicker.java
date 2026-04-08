@@ -1,10 +1,13 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/RCS/FilePicker.java,v 1.3 1999/10/21 22:40:12 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/RCS/FilePicker.java,v 1.4 1999/10/28 04:03:51 gbsmith Exp $ */
 
 import java.io.File;
 
 /*=======================================================================*/
 /*
  * $Log: FilePicker.java,v $
+ * Revision 1.4  1999/10/28 04:03:51  gbsmith
+ * Added tellFileLoaded() method.
+ *
  * Revision 1.3  1999/10/21 22:40:12  gbsmith
  * Added Copyright notice.
  *
@@ -39,5 +42,6 @@ interface FilePicker
 
    void tellNotFile( String filename );
    void tellFileMissing( String filename );
+   void tellFileLoaded( String filename );
    void tellCannotOpen( String filename );
 }

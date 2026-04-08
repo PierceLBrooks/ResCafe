@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/plugins/RCS/icl4ResourceHandler.java,v 1.3 1999/10/21 22:00:33 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/icl4ResourceHandler.java,v 1.3 1999/10/21 22:00:33 gbsmith Exp $ */
 
 
 import javax.swing.JList;

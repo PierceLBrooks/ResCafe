@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/ResourceManager/RCS/ResourceModel.java,v 1.6 1999/10/21 23:50:22 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/ResourceManager/RCS/ResourceModel.java,v 1.6 1999/10/21 23:50:22 gbsmith Exp $ */
 
 package ResourceManager;
 

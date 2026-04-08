@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/plugins/RCS/cicnParser.java,v 1.3 1999/10/21 22:29:30 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/cicnParser.java,v 1.3 1999/10/21 22:29:30 gbsmith Exp $ */
 import java.awt.Panel;
 import java.awt.Image;
 

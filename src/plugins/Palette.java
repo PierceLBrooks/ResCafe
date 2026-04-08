@@ -1,4 +1,4 @@
-/* $Header: /home/gbsmith/projects/MacResReader/ResCafe_1.0/src/plugins/RCS/Palette.java,v 1.2 1999/10/21 21:46:11 gbsmith Exp $ */
+/* $Header: /home/gbsmith/projects/MacResReader/ResCafe1.1/src/plugins/RCS/Palette.java,v 1.2 1999/10/21 21:46:11 gbsmith Exp $ */
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
